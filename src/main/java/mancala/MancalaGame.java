@@ -152,7 +152,6 @@ public class MancalaGame implements Serializable{
         // Pit pit = getBoard().getDataStructure().getNumStones(startPit);
 
         // check if the pit is empty
-        // if (pit.getStoneCount() == 0) {
         if (getBoard().getDataStructure().getNumStones(startPit) == 0) {
 
             throw new InvalidMoveException("The pit is empty");
