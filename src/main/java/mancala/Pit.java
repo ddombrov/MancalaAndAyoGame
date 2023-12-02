@@ -20,6 +20,7 @@ public class Pit implements Countable, Serializable {
      * 
      * @return the number of stones in the pit
      */
+    @Override
     public int getStoneCount() {
         return this.stones;
     }
@@ -27,10 +28,12 @@ public class Pit implements Countable, Serializable {
     /**
      * Adds a stone to the pit.
      */
+    @Override
     public void addStone() {
         this.stones++;
     }
 
+    @Override
     public void addStones(final int num) {
         for (int i = 0; i < num; i++) {
             addStone();
@@ -42,6 +45,7 @@ public class Pit implements Countable, Serializable {
      * 
      * @return the number of stones removed from the pit
      */
+    @Override
     public int removeStones() {
         final int removedStones = this.stones;
         this.stones = 0;

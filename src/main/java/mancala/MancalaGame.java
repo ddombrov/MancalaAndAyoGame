@@ -117,7 +117,6 @@ public class MancalaGame implements Serializable{
     public int getNumStones(final int pitNum) throws PitNotFoundException {
 
         // throw excpetion if pit was not initalized or is not valid
-        // if (this.getBoard().getPits().isEmpty() || pitNum < 1 || pitNum > 12) {
         if (pitNum < 1 || pitNum > 12) {
             throw new PitNotFoundException("Invalid pit number");
         }
@@ -144,7 +143,7 @@ public class MancalaGame implements Serializable{
         // get the current player
         final Player currentPlayer = getCurrentPlayer();
         int playerNum = 2;
-        if (currentPlayer == players.get(0)) {
+        if (currentPlayer.equals(players.get(0))) {
             playerNum = 1;
         }
 
@@ -194,7 +193,7 @@ public class MancalaGame implements Serializable{
     public Player getWinner() throws GameNotOverException {
 
         // if the game is over
-        if (this.getBoard().isSideEmpty(1) == true || this.getBoard().isSideEmpty(7) == true) {
+        if (this.getBoard().isSideEmpty(1) || this.getBoard().isSideEmpty(7)) {
 
             for (int i = 1; i <= 6; i++) {
                 players.get(0).getStore().addStones(this.getBoard().getNumStones(i));

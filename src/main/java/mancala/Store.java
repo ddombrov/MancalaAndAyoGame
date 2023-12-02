@@ -39,10 +39,12 @@ public class Store implements Countable, Serializable {
      * 
      * @param stones the number of stones to add to the store
      */
+    @Override
     public void addStones(final int stones) {
         this.stones += stones;
     }
 
+    @Override
     public void addStone() {
         this.stones += 1;
     }
@@ -73,7 +75,8 @@ public class Store implements Countable, Serializable {
     public int getTotalStones() {
         return this.stones;
     }
-
+    
+    @Override
     public int getStoneCount() {
         return this.stones;
     }
