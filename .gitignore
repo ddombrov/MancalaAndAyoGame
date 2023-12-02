@@ -1,0 +1,65 @@
+# TODO: Submission
+#Your submission for this assignment must be pushed to the main branch of the grading period git repository (i.e. GP2 or GP3). You can find the correct repositories at https://gitlab.socs.uoguelph.ca/ 2430F23/<<yourusername>>. You will have to initialize the git repository.
+#Your submission must follow the structure shown in this assignment description. If your repository structure is incorrect your submission will fail the autograder assessment.
+#Your repository will be automatically pulled a few minutes after the due date. Don’t wait until the last second to push to git.
+#Your repository should contain ONLY the following: .java files for your solution, .java files in the test subfolder, config folder with checkstyle.xml, build.gradle file, the docs directory and its contents, the README.md.
+#You are encouraged to also include a .gitignore file and may copy the file from examples we have provided and edit it as needed. You will lose marks for any other extra files or folders in your repository. Remember that a .gitignore file doesn’t remove files that have been added in error. It only prevents them from being added.
+
+# TODO: FAQ
+# Can we copy our gitignore file from A1?
+#Answer: Yes, of course. You can also add things to the .gitignore file if you wish. For example, VS-Code doesn't use a build folder it uses a bin folder so if you are letting VS-Code build for you, you may wish to add bin to the list of things that git ignores. Remember that a .gitignore file only works if you use it BEFORE you add things to git. It doesn't remove things you've already added.
+
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# Packages #
+############
+# it's better to unpack these files and commit the raw source
+# git has its own built in compression methods
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# Logs and databases #
+######################
+*.log
+*.sql
+*.sqlite
+
+# OS generated files #
+######################
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+
+### Gradle ###
+.gradle
+build/
+
+# Ignore Gradle GUI config
+gradle-app.setting
+
+# Cache of project
+.gradletasknamecache
+
+ipynb_checkpoints
