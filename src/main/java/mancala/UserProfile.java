@@ -10,6 +10,7 @@ public class UserProfile implements Serializable {
         final private int aGamesPlayed;
         final private int kWins;
         final private int aWins;
+        private static final long serialVersionUID = 7000;
 
         /**
          * Default constructor for the Store class.

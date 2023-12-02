@@ -5,6 +5,7 @@ public class Pit implements Countable, Serializable {
 
     // instance vars
     private int stones;
+    private static final long serialVersionUID = 3000;
 
     /**
      * Default constructor for the Pit class.

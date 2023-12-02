@@ -5,6 +5,7 @@ package mancala;
  * game to be over is attempted.
  */
 public class GameNotOverException extends Exception {
+    private static final long serialVersionUID = 2;
     public GameNotOverException(final String message) {
         super(message);
     }

@@ -8,6 +8,7 @@ public class Player implements Serializable {
     private String name;
     private Store store;
     private UserProfile profile;
+    private static final long serialVersionUID = 4000;
 
     /**
      * Default constructor for the Player class.

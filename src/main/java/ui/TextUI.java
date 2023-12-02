@@ -139,7 +139,6 @@ public class TextUI {
 
             if (game.getBoard().getDataStructure().getStoreCount(p1orP2) == playerOG + storeIncrease && newTurn == 1
                     && abc == 5) {
-                System.out.println("another turn");
             } else {
                 game.setCurrentPlayer(currentPlayer == game.getPlayers().get(0) ? game.getPlayers().get(1)
                         : game.getPlayers().get(0));

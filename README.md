@@ -49,7 +49,7 @@ Player 1, please enter the pit number:
 ```
 ## Limitations
 
-While both rule sets should not cause errors, the Ayo rules has some incomplete logic. The GameRules class has replaced Board class. Persistance and GUI not yet implemented. Code has duplication due to time constraints.
+While both rule sets should not cause errors, the Ayo rules has some incomplete logic. The GameRules class has replaced Board class. Persistance and GUI not yet implemented. There is lots of code  duplication and I failed to optimize MancalaDataStructure due to time constraints.
 
 ## Author Information
 

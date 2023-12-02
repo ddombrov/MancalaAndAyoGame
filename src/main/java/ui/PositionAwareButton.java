@@ -6,6 +6,7 @@ import javax.swing.JButton;
  * Represents a GUI button component that knows its position in a grid.
  */
 public class PositionAwareButton extends JButton {
+    private static final long serialVersionUID = 123;
     private int xPos;
     private int yPos;
 

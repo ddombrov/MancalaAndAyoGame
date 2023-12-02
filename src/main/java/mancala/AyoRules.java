@@ -5,7 +5,7 @@ public class AyoRules extends GameRules {
     private static final int FIRST_PIT=1;
     private static final int LAST_P1_PIT=6;
     private static final int FIRST_P2_PIT=7;
-
+    private static final long serialVersionUID = 124;
     /**
      * Perform a move in the Ayo game and return the number of stones added to the player's store.
      *
@@ -34,10 +34,8 @@ public class AyoRules extends GameRules {
      */    
     @Override
     public int distributeStones(int startingPoint) {
-
         int currentPit = startingPoint;
         int stones = getDataStructure().getNumStones(startingPoint);
-        // System.out.println(stones);
         final int stonesOG = stones;
         getDataStructure().removeStones(startingPoint);
         int endedAtStore = 0;
@@ -47,52 +45,36 @@ public class AyoRules extends GameRules {
         } else {
             whichPlayer = 2;
         }
-
         if (currentPit == FIRST_PIT) {
             currentPit = 7;
         } else if (currentPit == LAST_PIT) {
             currentPit = 6;
         } else {
-
             if (currentPit < FIRST_P2_PIT) {
                 currentPit = currentPit - 1;
-            } else if (currentPit > 6) {
+            } else if (currentPit > LAST_P1_PIT) {
                 currentPit = currentPit + 1;
             }
-
         }
-
         while (stones > 0) {
-
-            // skip start
             if (currentPit < FIRST_P2_PIT && currentPit == startingPoint) {
                 currentPit = currentPit - 1;
-                if (currentPit == 0) {
+                if (currentPit == FIRST_PIT-1) {
                     currentPit = 7;
                 }
             } else if (currentPit > LAST_P1_PIT && currentPit == startingPoint) {
                 currentPit = currentPit + 1;
-                if (currentPit == 13) {
+                if (currentPit == LAST_PIT+1) {
                     currentPit = 6;
                 }
             }
-
-            // System.out.println(stones);
-
-            // System.out.println(stones);
-
-            // System.out.println(this);
-            // System.out.println(stones);
-
             if (currentPit == FIRST_P2_PIT && startingPoint < FIRST_P2_PIT || currentPit == LAST_P1_PIT && startingPoint > LAST_P1_PIT) {
                 getDataStructure().addToStore(whichPlayer, 1);
                 stones--;
                 if (stones == 0) {
                     endedAtStore = 1;
                 }
-
             }
-
             if (stones > 0) {
                 if (currentPit != startingPoint) {
                     getDataStructure().addStones(currentPit, 1);
@@ -110,36 +92,24 @@ public class AyoRules extends GameRules {
                     } else if (currentPit > LAST_P1_PIT) {
                         currentPit = currentPit + 1;
                     }
-
                 }
-
             }
-
             if (stones == 0 && getDataStructure().getNumStones(currentPit) > 0 && endedAtStore == 0) {
-                // System.out.println(getDataStructure().getNumStones(currentPit));
-
                 stones = getDataStructure().getNumStones(currentPit);
                 getDataStructure().removeStones(currentPit);
             }
-
         }
-        // System.out.println("ENDOFOLOOP");
         int capturedStones = 0;
         final int whichSide = currentPit < FIRST_P2_PIT ? 1 : 2;
         final int posOrNeg = currentPit < FIRST_P2_PIT ? -1 : 1;
         final int posOrNegSix = posOrNeg * 6;
 
-        if (endedAtStore == 0) {
-            if (getDataStructure().getNumStones(currentPit) == FIRST_PIT && whichSide == whichPlayer
+        if (endedAtStore == 0 && getDataStructure().getNumStones(currentPit) == FIRST_PIT && whichSide == whichPlayer
                     && getDataStructure().getNumStones(currentPit + posOrNegSix) != 0) {
-
                 capturedStones = captureStones(currentPit);
                 getDataStructure().addToStore(whichPlayer, capturedStones);
-            }
+            
         }
-
-        // System.out.println("RETURN OF DS");
-
         return stonesOG + capturedStones;
     }
 

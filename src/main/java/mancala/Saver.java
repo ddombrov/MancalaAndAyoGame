@@ -21,6 +21,7 @@ public class Saver {
     private Scanner fileScanner;
     private int lineNumber;
     protected ArrayList<String> contents;
+    private static final long serialVersionUID = 5000;
 
     /**
      * Save an object to the file name given
@@ -32,7 +33,7 @@ public class Saver {
 
     public void write(final String saveObj) {
         contents.add(String.join("\n", contents));
-        return;
+        // return;
     }
 
     /**
@@ -107,10 +108,10 @@ public class Saver {
     public boolean readBoolean() throws FileFormatException {
         final String boolLine = readLine();
 
-        if (boolLine.equalsIgnoreCase("false")) {
+        if ("false".equalsIgnoreCase(boolLine)) {
             return false;
         }
-        if (boolLine.equalsIgnoreCase("true")) {
+        if ("true".equalsIgnoreCase(boolLine)) {
             return true;
         }
 

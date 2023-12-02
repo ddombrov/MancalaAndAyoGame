@@ -11,6 +11,7 @@ public class MancalaGame implements Serializable{
     private final ArrayList<Player> players;
     private Player currentPlayer;
     private GameRules game;
+    private static final long serialVersionUID = 200;
 
     /**
      * Default constructor for the MancalaGame class.
@@ -201,11 +202,11 @@ public class MancalaGame implements Serializable{
             }
 
             // return a winner (whoever has more stones in their store)
-            return (players.get(0).getStore().getTotalStones() > players.get(1).getStore().getTotalStones())
+            return players.get(0).getStore().getTotalStones() > players.get(1).getStore().getTotalStones()
                     ? players.get(0)
-                    : (players.get(1).getStoreCount() > players.get(0).getStoreCount()
+                    : players.get(1).getStoreCount() > players.get(0).getStoreCount()
                             ? players.get(1)
-                            : null);
+                            : null;
 
         } else {
             throw new GameNotOverException("The game is not over yet");

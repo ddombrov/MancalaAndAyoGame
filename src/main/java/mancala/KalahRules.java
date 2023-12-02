@@ -2,6 +2,12 @@ package mancala;
 
 public class KalahRules extends GameRules {
 
+    private static final int LAST_PIT=12;
+    private static final int FIRST_PIT=1;
+    private static final int LAST_P1_PIT=6;
+    private static final int FIRST_P2_PIT=7;
+    private static final long serialVersionUID = 125;
+
     /**
      * Perform a move in the Kalah game and return the number of stones added to the player's store.
      *
@@ -14,7 +20,7 @@ public class KalahRules extends GameRules {
     public int moveStones(final int startPit, final int playerNum) throws InvalidMoveException {
 
         // make sure pit is valid
-        if (startPit < 1 || startPit > 12) {
+        if (startPit < FIRST_PIT || startPit > LAST_PIT) {
             throw new InvalidMoveException("Invalid starting pit");
         }
 
@@ -37,7 +43,7 @@ public class KalahRules extends GameRules {
         getDataStructure().removeStones(startingPoint);
 
         int whichPlayer;
-        if (startingPoint < 7) {
+        if (startingPoint < FIRST_P2_PIT) {
             whichPlayer = 1;
         } else {
             whichPlayer = 2;
@@ -45,19 +51,19 @@ public class KalahRules extends GameRules {
 
         while (stones > 0) {
 
-            if (currentPit == 1 && startingPoint < 7 || currentPit == 12 && startingPoint > 6) {
+            if (currentPit == FIRST_PIT && startingPoint < FIRST_P2_PIT || currentPit == LAST_PIT && startingPoint > LAST_P1_PIT) {
                 getDataStructure().addToStore(whichPlayer, 1);
                 stones--;
             }
 
-            if (currentPit == 1) {
+            if (currentPit == FIRST_PIT) {
                 currentPit = 7;
-            } else if (currentPit == 12) {
+            } else if (currentPit == LAST_PIT) {
                 currentPit = 6;
             } else {
-                if (currentPit < 7) {
+                if (currentPit < FIRST_P2_PIT) {
                     currentPit = currentPit - 1;
-                } else if (currentPit > 6) {
+                } else if (currentPit > LAST_P1_PIT) {
                     currentPit = currentPit + 1;
                 }
             }
@@ -68,9 +74,9 @@ public class KalahRules extends GameRules {
             }
         }
 
-        final int whichSide = (currentPit < 7) ? 1 : 2;
+        final int whichSide = currentPit < FIRST_P2_PIT ? 1 : 2;
 
-        if (getDataStructure().getNumStones(currentPit) == 1 && whichPlayer == whichSide) {
+        if (getDataStructure().getNumStones(currentPit) == FIRST_PIT && whichPlayer == whichSide) {
 
             final int capturedStones = captureStones(currentPit);
             getDataStructure().addToStore(whichPlayer, capturedStones);
@@ -78,8 +84,8 @@ public class KalahRules extends GameRules {
 
         }
 
-        if (currentPit == 7 && startingPoint < 7 || currentPit == 6 && startingPoint > 6) {
-            setPlayer((whichPlayer == 1) ? 2 : 1);
+        if (currentPit == FIRST_P2_PIT && startingPoint < FIRST_P2_PIT || currentPit == LAST_P1_PIT && startingPoint > LAST_P1_PIT) {
+            setPlayer((whichPlayer == FIRST_PIT) ? 2 : 1);
         }
         return stonesOG;
 
@@ -96,7 +102,7 @@ public class KalahRules extends GameRules {
 
         // set oppositeStore to be the pit across from the stoppingPoint
         int oppositeStore;
-        if (stoppingPoint < 7) {
+        if (stoppingPoint < FIRST_P2_PIT) {
             oppositeStore = stoppingPoint + 6;
         } else {
             oppositeStore = stoppingPoint - 6;

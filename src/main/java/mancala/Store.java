@@ -6,6 +6,7 @@ public class Store implements Countable, Serializable {
     // instance var
     private int stones;
     private Player owner;
+    private static final long serialVersionUID = 6000;
 
     /**
      * Default constructor for the Store class.

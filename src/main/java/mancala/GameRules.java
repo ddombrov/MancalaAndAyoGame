@@ -7,6 +7,7 @@ import java.io.Serializable;
  */
 public abstract class GameRules implements Serializable {
     final private MancalaDataStructure gameBoard;
+    private static final long serialVersionUID = 1000;
     private int currentPlayer = 1; // Player number (1 or 2)
 
     /**
@@ -45,8 +46,8 @@ public abstract class GameRules implements Serializable {
         // This method can be implemented in the abstract class.
 
         // start by assuming sides are both empty
-        boolean isSide1Empty = true;
-        boolean isSide2Empty = true;
+         /* default */ boolean isSide1Empty = true;
+         /* default */ boolean isSide2Empty = true;
 
         for (int i = 1; i <= 6; i++) {
 
@@ -156,14 +157,10 @@ public abstract class GameRules implements Serializable {
         // go through the pits
         for (int i = 7; i <= 12; i++) {
 
-            if (i >= 9) {
-                strBldr.append("Pit").append(i).append(": ").append(getDataStructure().getNumStones(i))
-                        .append("\t");
 
-            } else {
                 strBldr.append("Pit").append(i).append(": ").append(getDataStructure().getNumStones(i))
                         .append("\t\t");
-            }
+            
 
         }
 

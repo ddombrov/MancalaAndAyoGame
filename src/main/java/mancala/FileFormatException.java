@@ -3,6 +3,7 @@ package mancala;
 import java.nio.file.Path;
 
 public class FileFormatException extends Exception {
+    private static final long serialVersionUID = 1;
 
     public FileFormatException() {
         super("The file is incorrectly formatted");
