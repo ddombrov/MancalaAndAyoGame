@@ -25,12 +25,12 @@ public class Saver {
     /**
      * Save an object to the file name given
      */
-    public void saveObject(Serializable toSave, String filename) throws IOException {
+    public void saveObject(final Serializable toSave, final String filename) throws IOException {
         filepath = Path.of("./assets", filename);
         contents = new ArrayList<>();
     }
 
-    public void write(String saveObj) {
+    public void write(final String saveObj) {
         contents.add(String.join("\n", contents));
         return;
     }
@@ -46,7 +46,7 @@ public class Saver {
         Files.write(filepath, contents);
     }
 
-    public Serializable loadObject(String filename) throws IOException {
+    public Serializable loadObject(final String filename) throws IOException {
 
         filepath = Path.of("./assets", filename);
         if (Files.notExists(filepath)) {
@@ -61,7 +61,7 @@ public class Saver {
         return Files.readAllLines(filepath);
     }
 
-    private String cleanString(String rawString) {
+    private String cleanString(final String rawString) {
         return rawString.trim();
     }
 
@@ -88,7 +88,7 @@ public class Saver {
      *                             are no more lines to read
      */
     public int readInt() throws FileFormatException {
-        String intLine = readLine();
+        final String intLine = readLine();
 
         try {
             return Integer.parseInt(intLine);
@@ -105,7 +105,7 @@ public class Saver {
      *                             no more lines to read
      */
     public boolean readBoolean() throws FileFormatException {
-        String boolLine = readLine();
+        final String boolLine = readLine();
 
         if (boolLine.equalsIgnoreCase("false")) {
             return false;

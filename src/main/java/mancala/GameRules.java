@@ -6,7 +6,7 @@ import java.io.Serializable;
  * KalahRules and AyoRules will subclass this class.
  */
 public abstract class GameRules implements Serializable {
-    private MancalaDataStructure gameBoard;
+    final private MancalaDataStructure gameBoard;
     private int currentPlayer = 1; // Player number (1 or 2)
 
     /**
@@ -22,7 +22,7 @@ public abstract class GameRules implements Serializable {
      * @param pitNum The number of the pit.
      * @return The number of stones in the pit.
      */
-    public int getNumStones(int pitNum) {
+    public int getNumStones(final int pitNum) {
         return gameBoard.getNumStones(pitNum);
     }
 
@@ -41,7 +41,7 @@ public abstract class GameRules implements Serializable {
      * @param pitNum The number of a pit in the side.
      * @return True if the side is empty, false otherwise.
      */
-    boolean isSideEmpty(int pitNum) {
+    boolean isSideEmpty(final int pitNum) {
         // This method can be implemented in the abstract class.
 
         // start by assuming sides are both empty
@@ -70,7 +70,7 @@ public abstract class GameRules implements Serializable {
      *
      * @param playerNum The player number (1 or 2).
      */
-    public void setPlayer(int playerNum) {
+    public void setPlayer(final int playerNum) {
         currentPlayer = playerNum;
     }
 
@@ -106,16 +106,16 @@ public abstract class GameRules implements Serializable {
      * @param one The first player.
      * @param two The second player.
      */
-    public void registerPlayers(Player one, Player two) {
+    public void registerPlayers(final Player one, final Player two) {
         // this method can be implemented in the abstract class.
 
         /*
          * make a new store in this method, set the owner
          * then use the setStore(store,playerNum) method of the data structure
          */
-        Store store1 = new Store();
+        final Store store1 = new Store();
         store1.setOwner(one);
-        Store store2 = new Store();
+        final Store store2 = new Store();
         store2.setOwner(two);
 
         getDataStructure().setStore(store1, 1);
@@ -134,7 +134,7 @@ public abstract class GameRules implements Serializable {
     public String toString() {
         // Implement toString() method logic here.
 
-        StringBuilder strBldr = new StringBuilder();
+        final StringBuilder strBldr = new StringBuilder();
 
         strBldr.append("\n");
 

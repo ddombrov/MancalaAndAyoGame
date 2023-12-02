@@ -6,10 +6,10 @@ public class UserProfile implements Serializable {
 
         // instance vars
         private String name;
-        private int kGamesPlayed;
-        private int aGamesPlayed;
-        private int kWins;
-        private int aWins;
+        final private int kGamesPlayed;
+        final private int aGamesPlayed;
+        final private int kWins;
+        final private int aWins;
 
         /**
          * Default constructor for the Store class.

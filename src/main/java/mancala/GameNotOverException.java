@@ -5,7 +5,7 @@ package mancala;
  * game to be over is attempted.
  */
 public class GameNotOverException extends Exception {
-    public GameNotOverException(String message) {
+    public GameNotOverException(final String message) {
         super(message);
     }
 }

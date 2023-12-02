@@ -8,7 +8,7 @@ public class MancalaGame implements Serializable{
 
     // instance vars
     // private Board board;
-    private ArrayList<Player> players;
+    private final ArrayList<Player> players;
     private Player currentPlayer;
     private GameRules game;
 
@@ -22,7 +22,7 @@ public class MancalaGame implements Serializable{
         this.game = new KalahRules();
     }
 
-    public MancalaGame(int kOrA) {
+    public MancalaGame(final int kOrA) {
 
         this.players = new ArrayList<>();
         if (kOrA == 0) {
@@ -38,7 +38,7 @@ public class MancalaGame implements Serializable{
      * @param onePlayer the first player
      * @param twoPlayer the second player
      */
-    public void setPlayers(Player onePlayer, Player twoPlayer) {
+    public void setPlayers(final Player onePlayer, final Player twoPlayer) {
 
         // add to players
         this.players.add(onePlayer);
@@ -76,7 +76,7 @@ public class MancalaGame implements Serializable{
      * 
      * @param player the Player object to set as the current player
      */
-    public void setCurrentPlayer(Player player) {
+    public void setCurrentPlayer(final Player player) {
         this.currentPlayer = player;
     }
 
@@ -89,7 +89,7 @@ public class MancalaGame implements Serializable{
     // this.board = theBoard;
     //
 
-    public void setBoard(GameRules theBoard) {
+    public void setBoard(final GameRules theBoard) {
         this.game = theBoard;
     }
 
@@ -113,7 +113,7 @@ public class MancalaGame implements Serializable{
      * @return the number of stones in the pit
      * @throws PitNotFoundException if the pit number is invalid
      */
-    public int getNumStones(int pitNum) throws PitNotFoundException {
+    public int getNumStones(final int pitNum) throws PitNotFoundException {
 
         // throw excpetion if pit was not initalized or is not valid
         // if (this.getBoard().getPits().isEmpty() || pitNum < 1 || pitNum > 12) {
@@ -133,7 +133,7 @@ public class MancalaGame implements Serializable{
      * @throws InvalidMoveException  if the move is invalid
      * @throws IllegalStateException if the game is over
      */
-    public int move(int startPit) throws InvalidMoveException, IllegalStateException {
+    public int move(final int startPit) throws InvalidMoveException, IllegalStateException {
 
         // check if game is over
         if (isGameOver()) {
@@ -141,7 +141,7 @@ public class MancalaGame implements Serializable{
         }
 
         // get the current player
-        Player currentPlayer = getCurrentPlayer();
+        final Player currentPlayer = getCurrentPlayer();
         int playerNum = 2;
         if (currentPlayer == players.get(0)) {
             playerNum = 1;
@@ -175,7 +175,7 @@ public class MancalaGame implements Serializable{
      * @return the total number of stones in the player's store
      * @throws NoSuchPlayerException if the player is not found
      */
-    public int getStoreCount(Player player) throws NoSuchPlayerException {
+    public int getStoreCount(final Player player) throws NoSuchPlayerException {
         if (player.getName().isEmpty()) {
             throw new NoSuchPlayerException("Invalid player");
         }
@@ -203,7 +203,7 @@ public class MancalaGame implements Serializable{
             // return a winner (whoever has more stones in their store)
             return (players.get(0).getStore().getTotalStones() > players.get(1).getStore().getTotalStones())
                     ? players.get(0)
-                    : ((players.get(1).getStoreCount() > players.get(0).getStoreCount())
+                    : (players.get(1).getStoreCount() > players.get(0).getStoreCount()
                             ? players.get(1)
                             : null);
 

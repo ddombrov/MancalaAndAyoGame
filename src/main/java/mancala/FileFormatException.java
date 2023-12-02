@@ -8,11 +8,11 @@ public class FileFormatException extends Exception {
         super("The file is incorrectly formatted");
     }
 
-    public FileFormatException(String message) {
+    public FileFormatException(final String message) {
         super(message);
     }
 
-    public FileFormatException(Path filePath, int lineNumber, String errorMessage) {
+    public FileFormatException(final Path filePath, final int lineNumber, String errorMessage) {
         super(filePath.toAbsolutePath().toString() + ":Line " + Integer.toString(lineNumber) + " " + errorMessage);
     }
 

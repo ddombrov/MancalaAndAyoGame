@@ -21,7 +21,7 @@ public class PositionAwareButton extends JButton {
      *
      * @param val The text to display on the button.
      */
-    public PositionAwareButton(String val) {
+    public PositionAwareButton(final String val) {
         super(val);
     }
 
@@ -48,7 +48,7 @@ public class PositionAwareButton extends JButton {
      *
      * @param val The horizontal position to set.
      */
-    public void setAcross(int val) {
+    public void setAcross(final int val) {
         xPos = val;
     }
 
@@ -57,7 +57,7 @@ public class PositionAwareButton extends JButton {
      *
      * @param val The vertical position to set.
      */
-    public void setDown(int val) {
+    public void setDown(final int val) {
         yPos = val;
     }
 }

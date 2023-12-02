@@ -29,7 +29,7 @@ public class Store implements Countable, Serializable {
      * 
      * @param stones the new number of stones in the store
      */
-    public void setStones(int stones) {
+    public void setStones(final int stones) {
         this.stones = stones;
     }
 
@@ -38,7 +38,7 @@ public class Store implements Countable, Serializable {
      * 
      * @param stones the number of stones to add to the store
      */
-    public void addStones(int stones) {
+    public void addStones(final int stones) {
         this.stones += stones;
     }
 
@@ -51,7 +51,7 @@ public class Store implements Countable, Serializable {
      * 
      * @param player the Player object to set as the owner of the store
      */
-    public void setOwner(Player player) {
+    public void setOwner(final Player player) {
         this.owner = player;
     }
 
@@ -83,7 +83,7 @@ public class Store implements Countable, Serializable {
      * @return the number of stones in the store before it was emptied
      */
     public int emptyStore() {
-        int removedStones = this.stones;
+        final int removedStones = this.stones;
         this.stones = 0;
         return removedStones;
     }

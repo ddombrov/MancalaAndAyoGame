@@ -1,6 +1,10 @@
 package mancala;
 
 public class AyoRules extends GameRules {
+    private static final int LAST_PIT=12;
+    private static final int FIRST_PIT=1;
+    private static final int LAST_P1_PIT=6;
+    private static final int FIRST_P2_PIT=7;
 
     /**
      * Perform a move in the Ayo game and return the number of stones added to the player's store.
@@ -11,13 +15,13 @@ public class AyoRules extends GameRules {
      * @throws InvalidMoveException If the move is invalid.
      */
     @Override
-    public int moveStones(int startPit, int playerNum) throws InvalidMoveException {
+    public int moveStones(final int startPit, final int playerNum) throws InvalidMoveException {
 
         // make sure pit is valid
-        if (startPit < 1 || startPit > 12) {
+        if (startPit < FIRST_PIT || startPit > LAST_PIT) {
             throw new InvalidMoveException("Invalid starting pit");
         }
-        int originalCount=getDataStructure().getStoreCount(playerNum);
+        final int originalCount=getDataStructure().getStoreCount(playerNum);
         distributeStones(startPit);
         return getDataStructure().getStoreCount(playerNum)-originalCount;
     }
@@ -34,23 +38,23 @@ public class AyoRules extends GameRules {
         int currentPit = startingPoint;
         int stones = getDataStructure().getNumStones(startingPoint);
         // System.out.println(stones);
-        int stonesOG = stones;
+        final int stonesOG = stones;
         getDataStructure().removeStones(startingPoint);
         int endedAtStore = 0;
         int whichPlayer;
-        if (startingPoint < 6) {
+        if (startingPoint < LAST_P1_PIT) {
             whichPlayer = 1;
         } else {
             whichPlayer = 2;
         }
 
-        if (currentPit == 1) {
+        if (currentPit == FIRST_PIT) {
             currentPit = 7;
-        } else if (currentPit == 12) {
+        } else if (currentPit == LAST_PIT) {
             currentPit = 6;
         } else {
 
-            if (currentPit < 7) {
+            if (currentPit < FIRST_P2_PIT) {
                 currentPit = currentPit - 1;
             } else if (currentPit > 6) {
                 currentPit = currentPit + 1;
@@ -61,12 +65,12 @@ public class AyoRules extends GameRules {
         while (stones > 0) {
 
             // skip start
-            if (currentPit < 7 && currentPit == startingPoint) {
+            if (currentPit < FIRST_P2_PIT && currentPit == startingPoint) {
                 currentPit = currentPit - 1;
                 if (currentPit == 0) {
                     currentPit = 7;
                 }
-            } else if (currentPit > 6 && currentPit == startingPoint) {
+            } else if (currentPit > LAST_P1_PIT && currentPit == startingPoint) {
                 currentPit = currentPit + 1;
                 if (currentPit == 13) {
                     currentPit = 6;
@@ -80,7 +84,7 @@ public class AyoRules extends GameRules {
             // System.out.println(this);
             // System.out.println(stones);
 
-            if (currentPit == 7 && startingPoint < 7 || currentPit == 6 && startingPoint > 6) {
+            if (currentPit == FIRST_P2_PIT && startingPoint < FIRST_P2_PIT || currentPit == LAST_P1_PIT && startingPoint > LAST_P1_PIT) {
                 getDataStructure().addToStore(whichPlayer, 1);
                 stones--;
                 if (stones == 0) {
@@ -95,15 +99,15 @@ public class AyoRules extends GameRules {
                     stones--;
                 }
 
-                if (currentPit == 1) {
+                if (currentPit == FIRST_PIT) {
                     currentPit = 7;
-                } else if (currentPit == 12) {
+                } else if (currentPit == LAST_PIT) {
                     currentPit = 6;
                 } else {
 
-                    if (currentPit < 7) {
+                    if (currentPit < FIRST_P2_PIT) {
                         currentPit = currentPit - 1;
-                    } else if (currentPit > 6) {
+                    } else if (currentPit > LAST_P1_PIT) {
                         currentPit = currentPit + 1;
                     }
 
@@ -121,12 +125,12 @@ public class AyoRules extends GameRules {
         }
         // System.out.println("ENDOFOLOOP");
         int capturedStones = 0;
-        int whichSide = currentPit < 7 ? 1 : 2;
-        int posOrNeg = currentPit < 7 ? -1 : 1;
-        int posOrNegSix = posOrNeg * 6;
+        final int whichSide = currentPit < FIRST_P2_PIT ? 1 : 2;
+        final int posOrNeg = currentPit < FIRST_P2_PIT ? -1 : 1;
+        final int posOrNegSix = posOrNeg * 6;
 
         if (endedAtStore == 0) {
-            if (getDataStructure().getNumStones(currentPit) == 1 && whichSide == whichPlayer
+            if (getDataStructure().getNumStones(currentPit) == FIRST_PIT && whichSide == whichPlayer
                     && getDataStructure().getNumStones(currentPit + posOrNegSix) != 0) {
 
                 capturedStones = captureStones(currentPit);
@@ -146,18 +150,18 @@ public class AyoRules extends GameRules {
      * @return The number of stones captured.
      */    
     @Override
-    public int captureStones(int stoppingPoint) {
+    public int captureStones(final int stoppingPoint) {
 
         // set oppositeStore to be the pit across from the stoppingPoint
         int oppositeStore;
-        if (stoppingPoint < 7) {
+        if (stoppingPoint < FIRST_P2_PIT) {
             oppositeStore = stoppingPoint + 6;
         } else {
             oppositeStore = stoppingPoint - 6;
         }
 
         // take the stones in opposite store and current store
-        int capturedStones = getDataStructure().getNumStones(oppositeStore);
+        final int capturedStones = getDataStructure().getNumStones(oppositeStore);
 
         getDataStructure().removeStones(oppositeStore);
 

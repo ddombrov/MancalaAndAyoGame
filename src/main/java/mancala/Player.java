@@ -25,7 +25,7 @@ public class Player implements Serializable {
      * 
      * @param name the name of the player
      */
-    public Player(String name) {
+    public Player(final String name) {
         this.store = new Store();
         this.name = name;
     }
@@ -44,7 +44,7 @@ public class Player implements Serializable {
      * 
      * @param name the new name of the player
      */
-    public void setName(String name) {
+    public void setName(final String name) {
         this.name = name;
     }
 
@@ -53,7 +53,7 @@ public class Player implements Serializable {
      * 
      * @param store the new Store object for the player
      */
-    public void setStore(Store store) {
+    public void setStore(final Store store) {
         this.store = store;
     }
 

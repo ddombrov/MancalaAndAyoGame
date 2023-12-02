@@ -11,7 +11,7 @@ public class KalahRules extends GameRules {
      * @throws InvalidMoveException If the move is invalid
      */    
     @Override
-    public int moveStones(int startPit, int playerNum) throws InvalidMoveException {
+    public int moveStones(final int startPit, final int playerNum) throws InvalidMoveException {
 
         // make sure pit is valid
         if (startPit < 1 || startPit > 12) {
@@ -29,11 +29,11 @@ public class KalahRules extends GameRules {
      * @return The number of stones distributed.
      */    
     @Override
-    public int distributeStones(int startingPoint) {
+    public int distributeStones(final int startingPoint) {
 
         int currentPit = startingPoint;
         int stones = getDataStructure().getNumStones(startingPoint);
-        int stonesOG = stones;
+        final int stonesOG = stones;
         getDataStructure().removeStones(startingPoint);
 
         int whichPlayer;
@@ -68,11 +68,11 @@ public class KalahRules extends GameRules {
             }
         }
 
-        int whichSide = (currentPit < 7) ? 1 : 2;
+        final int whichSide = (currentPit < 7) ? 1 : 2;
 
         if (getDataStructure().getNumStones(currentPit) == 1 && whichPlayer == whichSide) {
 
-            int capturedStones = captureStones(currentPit);
+            final int capturedStones = captureStones(currentPit);
             getDataStructure().addToStore(whichPlayer, capturedStones);
             return stonesOG + capturedStones;
 
@@ -84,7 +84,7 @@ public class KalahRules extends GameRules {
         return stonesOG;
 
     }
-    
+
     /**
      * Capture stones from the opponent's pit and return the number captured.
      *
@@ -92,7 +92,7 @@ public class KalahRules extends GameRules {
      * @return The number of stones captured.
      */
     @Override
-    public int captureStones(int stoppingPoint) {
+    public int captureStones(final int stoppingPoint) {
 
         // set oppositeStore to be the pit across from the stoppingPoint
         int oppositeStore;
@@ -103,7 +103,7 @@ public class KalahRules extends GameRules {
         }
 
         // take the stones in opposite store and current store
-        int capturedStones = getDataStructure().getNumStones(oppositeStore)
+        final int capturedStones = getDataStructure().getNumStones(oppositeStore)
                 + getDataStructure().getNumStones(stoppingPoint);
 
         getDataStructure().removeStones(oppositeStore);

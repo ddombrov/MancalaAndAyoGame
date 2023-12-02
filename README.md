@@ -49,7 +49,7 @@ Player 1, please enter the pit number:
 ```
 ## Limitations
 
-While both rule sets should not cause errors, the Ayo rules has some incomplete logic. The GameRules class has replaced Board class. Persistance and GUI not yet implemented.
+While both rule sets should not cause errors, the Ayo rules has some incomplete logic. The GameRules class has replaced Board class. Persistance and GUI not yet implemented. Code has duplication due to time constraints.
 
 ## Author Information
 
@@ -57,7 +57,7 @@ Name: Daniel Dombrovsky, Contact: ddombrov@uoguelph.ca, Student #: 1211846
 
 ## Development History
  
-I had done all changes to GP3 instead of GP4 until I realized and started pushing to GP4 repo.
+I had done all changes to GP3 instead of GP4 until I realized and started pushing to GP4 repo. My pmd errors are much more numerous than A2 since I had little working in A2 but A3 has a lot of components. I let it make a master but course-corrected to main.
 
 ## Acknowledgments
 

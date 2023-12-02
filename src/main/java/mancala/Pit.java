@@ -30,7 +30,7 @@ public class Pit implements Countable, Serializable {
         this.stones++;
     }
 
-    public void addStones(int num) {
+    public void addStones(final int num) {
         for (int i = 0; i < num; i++) {
             addStone();
         }
@@ -42,7 +42,7 @@ public class Pit implements Countable, Serializable {
      * @return the number of stones removed from the pit
      */
     public int removeStones() {
-        int removedStones = this.stones;
+        final int removedStones = this.stones;
         this.stones = 0;
         return removedStones;
     }
