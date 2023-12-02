@@ -107,15 +107,17 @@ public class Saver {
      */
     public boolean readBoolean() throws FileFormatException {
         final String boolLine = readLine();
+        boolean result;
 
         if ("false".equalsIgnoreCase(boolLine)) {
-            return false;
+            result = false;
+        } else if ("true".equalsIgnoreCase(boolLine)) {
+            result = true;
+        } else {
+            throw new FileFormatException(filepath, lineNumber, boolLine + " could not be parsed as a boolean");
         }
-        if ("true".equalsIgnoreCase(boolLine)) {
-            return true;
-        }
-
-        throw new FileFormatException(filepath, lineNumber, boolLine + " could not be parsed as a boolean");
+        
+        return result;
     }
 
     // private void loadListOption() {
