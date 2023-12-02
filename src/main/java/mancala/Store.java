@@ -1,6 +1,7 @@
 package mancala;
+import java.io.Serializable;
 
-public class Store implements Countable {
+public class Store implements Countable, Serializable {
 
     // instance var
     private int stones;

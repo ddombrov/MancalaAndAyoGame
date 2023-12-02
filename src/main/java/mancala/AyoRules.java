@@ -2,6 +2,14 @@ package mancala;
 
 public class AyoRules extends GameRules {
 
+    /**
+     * Perform a move in the Ayo game and return the number of stones added to the player's store.
+     *
+     * @param startPit  The starting pit.
+     * @param playerNum The current player's num.
+     * @return The number of stones added to the player's store.
+     * @throws InvalidMoveException If the move is invalid.
+     */
     @Override
     public int moveStones(int startPit, int playerNum) throws InvalidMoveException {
 
@@ -9,10 +17,17 @@ public class AyoRules extends GameRules {
         if (startPit < 1 || startPit > 12) {
             throw new InvalidMoveException("Invalid starting pit");
         }
+        int originalCount=getDataStructure().getStoreCount(playerNum);
         distributeStones(startPit);
-        return getDataStructure().getStoreCount(playerNum);
+        return getDataStructure().getStoreCount(playerNum)-originalCount;
     }
 
+    /**
+     * Distribute stones from a starting pit and return the number distributed.
+     *
+     * @param startingPoint The starting pit for distribution.
+     * @return The number of stones distributed.
+     */    
     @Override
     public int distributeStones(int startingPoint) {
 
@@ -124,6 +139,12 @@ public class AyoRules extends GameRules {
         return stonesOG + capturedStones;
     }
 
+    /**
+     * Capture stones from the opponent's pit and return the number captured.
+     *
+     * @param stoppingPoint The stopping point for capturing stones.
+     * @return The number of stones captured.
+     */    
     @Override
     public int captureStones(int stoppingPoint) {
 

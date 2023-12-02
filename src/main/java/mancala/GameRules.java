@@ -1,10 +1,11 @@
 package mancala;
+import java.io.Serializable;
 
 /**
  * Abstract class representing the rules of a Mancala game.
  * KalahRules and AyoRules will subclass this class.
  */
-public abstract class GameRules {
+public abstract class GameRules implements Serializable {
     private MancalaDataStructure gameBoard;
     private int currentPlayer = 1; // Player number (1 or 2)
 

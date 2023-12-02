@@ -1,10 +1,10 @@
 package mancala;
 
 import java.util.ArrayList;
-//import java.io.Serializable;
+import java.io.Serializable;
 
 //public class MancalaGame implements Serializable {
-public class MancalaGame {
+public class MancalaGame implements Serializable{
 
     // instance vars
     // private Board board;

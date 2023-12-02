@@ -57,7 +57,7 @@ Name: Daniel Dombrovsky, Contact: ddombrov@uoguelph.ca, Student #: 1211846
 
 ## Development History
  
-I had done all changes to GP3 instead of GP4 until I realized at 5am.
+I had done all changes to GP3 instead of GP4 until I realized and started pushing to GP4 repo.
 
 ## Acknowledgments
 

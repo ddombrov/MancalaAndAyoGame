@@ -1,6 +1,8 @@
 package mancala;
 
-public class Player {
+import java.io.Serializable;
+
+public class Player implements Serializable {
 
     // instance vars
     private String name;

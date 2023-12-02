@@ -2,9 +2,14 @@ package mancala;
 
 public class KalahRules extends GameRules {
 
-    private int turn;
-
-
+    /**
+     * Perform a move in the Kalah game and return the number of stones added to the player's store.
+     *
+     * @param startPit  The starting pit
+     * @param playerNum The current player's num
+     * @return The number of stones added to the player's store
+     * @throws InvalidMoveException If the move is invalid
+     */    
     @Override
     public int moveStones(int startPit, int playerNum) throws InvalidMoveException {
 
@@ -17,6 +22,12 @@ public class KalahRules extends GameRules {
         return getDataStructure().getStoreCount(playerNum);
     }
 
+    /**
+     * Distribute stones from a starting pit and return the number distributed.
+     *
+     * @param startingPoint The starting pit for distribution.
+     * @return The number of stones distributed.
+     */    
     @Override
     public int distributeStones(int startingPoint) {
 
@@ -73,7 +84,13 @@ public class KalahRules extends GameRules {
         return stonesOG;
 
     }
-
+    
+    /**
+     * Capture stones from the opponent's pit and return the number captured.
+     *
+     * @param stoppingPoint The stopping point for capturing stones.
+     * @return The number of stones captured.
+     */
     @Override
     public int captureStones(int stoppingPoint) {
 
