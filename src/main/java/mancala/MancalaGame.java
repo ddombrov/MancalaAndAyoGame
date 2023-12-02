@@ -180,7 +180,7 @@ public class MancalaGame implements Serializable{
             throw new NoSuchPlayerException("Invalid player");
         }
         // return this.getBoard().getPlayerStoreCount(player);
-        return player == players.get(0) ? player.getStoreCount() : players.get(1).getStoreCount();
+        return player.equals(players.get(0)) ? player.getStoreCount() : players.get(1).getStoreCount();
 
     }
 

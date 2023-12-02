@@ -75,19 +75,17 @@ public class KalahRules extends GameRules {
         }
 
         final int whichSide = currentPit < FIRST_P2_PIT ? 1 : 2;
-
+        int capturedStones=0;
         if (getDataStructure().getNumStones(currentPit) == FIRST_PIT && whichPlayer == whichSide) {
 
-            final int capturedStones = captureStones(currentPit);
+            capturedStones = captureStones(currentPit);
             getDataStructure().addToStore(whichPlayer, capturedStones);
-            return stonesOG + capturedStones;
-
         }
 
         if (currentPit == FIRST_P2_PIT && startingPoint < FIRST_P2_PIT || currentPit == LAST_P1_PIT && startingPoint > LAST_P1_PIT) {
             setPlayer((whichPlayer == FIRST_PIT) ? 2 : 1);
         }
-        return stonesOG;
+            return stonesOG + capturedStones;
 
     }
 
