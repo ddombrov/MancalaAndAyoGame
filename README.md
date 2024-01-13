@@ -17,19 +17,6 @@ gradle build
 ```
 * which show display: 
 ```
-> Task :pmdTest
-Removed misconfigured rule: LoosePackageCoupling  cause: No packages or classes specified
-
-> Task :pmdMain
-Removed misconfigured rule: LoosePackageCoupling  cause: No packages or classes specified
-271 PMD rule violations were found. See the report at: file:///course/CIS2430%20Textbook%20Location/Tutorials/GP4/build/reports/pmd/main.html
-
-Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
-
-You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
-
-See https://docs.gradle.org/8.1.1/userguide/command_line_interface.html#sec:command_line_warnings
-
 BUILD SUCCESSFUL in 10s
 5 actionable tasks: 4 executed, 1 up-to-date
 ```
@@ -49,15 +36,11 @@ Player 1, please enter the pit number:
 ```
 ## Limitations
 
-While both rule sets should not cause errors, the Ayo rules has some incomplete logic. The GameRules class has replaced Board class. Persistance and GUI not yet implemented.
+Persistance and GUI is not yet implemented.
 
 ## Author Information
 
 Name: Daniel Dombrovsky, Contact: ddombrov@uoguelph.ca, Student #: 1211846
-
-## Development History
- 
-I had done all changes to GP3 instead of GP4 until I realized and started pushing to GP4 repo.
 
 ## Acknowledgments
 
