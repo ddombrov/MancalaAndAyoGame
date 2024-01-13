@@ -2,7 +2,7 @@
 Mancala Game Player
 
 ## Description
-This assignment should allow you to play a Mancala game via a GUI, with either the Kalah or Ayo rule set and save/load features. Keyword should.
+This assignment should allow you to play a Mancala game via a GUI, with either the Kalah or Ayo rule set and save/load features.
 ## Getting Started
 
 ### Dependencies
@@ -40,7 +40,7 @@ Persistance and GUI is not yet implemented.
 
 ## Author Information
 
-Name: Daniel Dombrovsky, Contact: ddombrov@uoguelph.ca, Student #: 1211846
+Name: Daniel Dombrovsky, Contact: ddombrov@uoguelph.ca
 
 ## Acknowledgments
 
