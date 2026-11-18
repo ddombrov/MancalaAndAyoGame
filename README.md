@@ -1,52 +1,43 @@
-# Project Title
-Mancala Game Player
+# Mancala
 
-## Description
-This assignment should allow you to play a Mancala game via a GUI, with either the Kalah or Ayo rule set and save/load features.
-## Getting Started
+A two-player Mancala game in Java with two rule sets, Kalah and Ayo. Each stone you sow, relay and capture is animated on a hand-drawn Swing board.
 
-### Dependencies
+![Home screen with the Kalah and Ayo choices](docs/screenshots/home.jpg)
 
-Java is required to be installed to run this.
+![A Kalah game in progress on the wooden board](docs/screenshots/game.jpg)
 
-### Executing program
+## Features
 
-* Compile program in the directory:
+- **Two rule sets:** Kalah, with captures and extra turns, and Ayo, with relay sowing and no extra turns.
+- **Animated board:** stones move pit by pit, and the current player's row is highlighted.
+- **Named players:** both players enter a name before the game, and duplicate names are rejected.
+- **Runs in the browser too:** the same JAR runs on a web page through CheerpJ, with nothing to install.
+
+## Running it
+
+Java 11 or newer is required.
+
+With Gradle:
+
 ```
 gradle build
+java -cp build/classes/java/main ui.MancalaGUI
 ```
-* which show display: 
+
+Without Gradle:
+
 ```
-BUILD SUCCESSFUL in 10s
-5 actionable tasks: 4 executed, 1 up-to-date
+javac -d out $(find src/main/java -name "*.java")
+java -cp out ui.MancalaGUI
 ```
-* then run: 
-```
-java -cp build/classes/java/main ui.TextUI
-```
-* which outputs: 
-```
-k or a?
-k (user choice)
 
-Pit1: 4         Pit2: 4         Pit3: 4         Pit4: 4         Pit5: 4         Pit6: 4
-Player1 Store: 0                                                Player2 Store: 0
-Pit7: 4         Pit8: 4         Pit9: 4 Pit10: 4        Pit11: 4        Pit12: 4
-Player 1, please enter the pit number:
-```
-## Limitations
+The original text version is still available with `java -cp build/classes/java/main ui.TextUI`.
 
-Persistance and GUI is not yet implemented.
+## Project layout
 
-## Author Information
+- `src/main/java/mancala/` is the game model: the board, pits, stores, players and both rule sets.
+- `src/main/java/ui/` is the Swing interface (`MancalaGUI`, `HomePanel`, `BoardPanel`, `SetupDialog`) and the text interface (`TextUI`).
 
-Name: Daniel Dombrovsky, Contact: ddombrov@uoguelph.ca
+## Author
 
-## Acknowledgments
-
-Inspiration, code snippets, etc.
-* [awesome-readme](https://github.com/matiassingers/awesome-readme)
-* [simple-readme] (https://gist.githubusercontent.com/DomPizzie/7a5ff55ffa9081f2de27c315f5018afc/raw/d59043abbb123089ad6602aba571121b71d91d7f/README-Template.md)
-
-
-
+Daniel Dombrovsky
