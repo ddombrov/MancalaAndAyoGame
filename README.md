@@ -1,19 +1,37 @@
 # Mancala
 
-A two-player Mancala game in Java with two rule sets, Kalah and Ayo. Each stone you sow, relay and capture is animated on a hand-drawn Swing board.
+A two-player Mancala game with two rule sets, Kalah and Ayo. It started as a Java Swing game and now also runs on the web, where you can play on one device, against the computer, or online with a friend.
 
-![Home screen with the Kalah and Ayo choices](docs/screenshots/home.jpg)
+**Play it:** https://mancala.danieldombrovsky9.workers.dev
 
-![A Kalah game in progress on the wooden board](docs/screenshots/game.jpg)
+![Home screen with the four ways to play](docs/screenshots/home.jpg)
+
+![An online Ayo game after a relay and a capture](docs/screenshots/game.jpg)
 
 ## Features
 
 - **Two rule sets:** Kalah, with captures and extra turns, and Ayo, with relay sowing and no extra turns.
-- **Animated board:** stones move pit by pit, and the current player's row is highlighted.
-- **Named players:** both players enter a name before the game, and duplicate names are rejected.
-- **Runs in the browser too:** the same JAR runs on a web page through CheerpJ, with nothing to install.
+- **Four ways to play on the web:** on one device, against the computer (easy, medium or hard), online with a friend using a 5-digit game code, or against a stranger with quick match.
+- **Saved games:** games on one device or against the computer are kept in the browser and offered for resume. Online games are stored on the server, and a player who loses their seat can take it back with the code.
+- **Animated board:** every stone moves on its own as it is sown, relayed, captured and banked.
+- **Custom looks:** walnut, oak or ebony boards and four stone sets, chosen in Settings. The browser also remembers your name.
+- **Confetti** when the game ends.
+- **The original Java version** is still here, with its own animated Swing board.
 
-## Running it
+## Running the web version
+
+`web/` is a Cloudflare Worker with a D1 database, built like Splendor Duel's server. `web/public/engine.js` holds the rules and the computer opponent, and is shared by the browser and the Worker, which checks every online move. Running it locally needs Node 22:
+
+```
+cd web
+npm install
+npm run db:local   # creates the local database tables, once
+npm run dev        # http://localhost:8789
+```
+
+To publish, run `npx wrangler deploy` from `web/`.
+
+## Running the Java version
 
 Java 11 or newer is required.
 
@@ -36,8 +54,13 @@ The original text version is still available with `java -cp build/classes/java/m
 ## Project layout
 
 - `src/main/java/mancala/` is the game model: the board, pits, stores, players and both rule sets.
+- `web/` is the web version: `public/` holds the pages, rules engine and artwork, and `src/index.js` is the Worker.
 - `src/main/java/ui/` is the Swing interface (`MancalaGUI`, `HomePanel`, `BoardPanel`, `SetupDialog`) and the text interface (`TextUI`).
 
 ## Author
 
 Daniel Dombrovsky
+
+## Credits
+
+The mode icons are shared with Splendor Duel. Confetti uses [canvas-confetti](https://github.com/catdad/canvas-confetti) (ISC licence, see `CONFETTI-LICENSE.txt`).

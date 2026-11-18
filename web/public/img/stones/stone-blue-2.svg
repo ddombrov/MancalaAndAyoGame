@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <clipPath id="c"><path d="M54.69 29.41 C54.99 34.67 51.58 42.00 47.35 46.02 C43.12 50.03 34.77 53.67 29.30 53.50 C23.84 53.33 17.71 48.40 14.57 44.99 C11.42 41.58 10.42 37.82 10.45 33.04 C10.48 28.25 11.70 20.35 14.74 16.28 C17.77 12.20 23.53 8.90 28.67 8.59 C33.81 8.29 41.23 10.98 45.56 14.45 C49.90 17.92 54.40 24.14 54.69 29.41 Z"/></clipPath>
+    <radialGradient id="body" cx="40%" cy="36%" r="70%">
+      <stop offset="0" stop-color="#2f6fe0"/><stop offset="0.65" stop-color="#133b82"/><stop offset="1" stop-color="#0a285d"/>
+    </radialGradient>
+    <radialGradient id="caustic" cx="64%" cy="70%" r="38%">
+      <stop offset="0" stop-color="#b4cbf4" stop-opacity="0.85"/><stop offset="1" stop-color="#b4cbf4" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="sh" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.4"/></filter>
+    <filter id="b1" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.1"/></filter>
+    <filter id="b3" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.6"/></filter>
+  </defs>
+  <!-- contact shadow and coloured light passing through the glass -->
+  <path d="M54.69 29.41 C54.99 34.67 51.58 42.00 47.35 46.02 C43.12 50.03 34.77 53.67 29.30 53.50 C23.84 53.33 17.71 48.40 14.57 44.99 C11.42 41.58 10.42 37.82 10.45 33.04 C10.48 28.25 11.70 20.35 14.74 16.28 C17.77 12.20 23.53 8.90 28.67 8.59 C33.81 8.29 41.23 10.98 45.56 14.45 C49.90 17.92 54.40 24.14 54.69 29.41 Z" fill="#000" opacity="0.45" transform="translate(3 4)" filter="url(#sh)"/>
+  <path d="M54.69 29.41 C54.99 34.67 51.58 42.00 47.35 46.02 C43.12 50.03 34.77 53.67 29.30 53.50 C23.84 53.33 17.71 48.40 14.57 44.99 C11.42 41.58 10.42 37.82 10.45 33.04 C10.48 28.25 11.70 20.35 14.74 16.28 C17.77 12.20 23.53 8.90 28.67 8.59 C33.81 8.29 41.23 10.98 45.56 14.45 C49.90 17.92 54.40 24.14 54.69 29.41 Z" fill="#b4cbf4" opacity="0.18" transform="translate(5 6) scale(0.92) translate(2.5 2.5)" filter="url(#b3)"/>
+  <path d="M54.69 29.41 C54.99 34.67 51.58 42.00 47.35 46.02 C43.12 50.03 34.77 53.67 29.30 53.50 C23.84 53.33 17.71 48.40 14.57 44.99 C11.42 41.58 10.42 37.82 10.45 33.04 C10.48 28.25 11.70 20.35 14.74 16.28 C17.77 12.20 23.53 8.90 28.67 8.59 C33.81 8.29 41.23 10.98 45.56 14.45 C49.90 17.92 54.40 24.14 54.69 29.41 Z" fill="url(#body)"/>
+  <g clip-path="url(#c)">
+    <rect width="64" height="64" fill="url(#caustic)"/>
+    <!-- dark refractive edge on the upper-left -->
+    <path d="M54.69 29.41 C54.99 34.67 51.58 42.00 47.35 46.02 C43.12 50.03 34.77 53.67 29.30 53.50 C23.84 53.33 17.71 48.40 14.57 44.99 C11.42 41.58 10.42 37.82 10.45 33.04 C10.48 28.25 11.70 20.35 14.74 16.28 C17.77 12.20 23.53 8.90 28.67 8.59 C33.81 8.29 41.23 10.98 45.56 14.45 C49.90 17.92 54.40 24.14 54.69 29.41 Z" fill="none" stroke="#0a285d" stroke-opacity="0.7" stroke-width="6" transform="translate(-2 -2)" filter="url(#b3)"/>
+    <!-- domed top highlight -->
+    <ellipse cx="24" cy="21" rx="11" ry="6.5" fill="#fff" opacity="0.55" transform="rotate(-28 24 21)" filter="url(#b1)"/>
+    <ellipse cx="22.5" cy="19.5" rx="4.2" ry="2.4" fill="#fff" opacity="0.9" transform="rotate(-28 22.5 19.5)"/>
+    <ellipse cx="44" cy="45" rx="6" ry="2.2" fill="#fff" opacity="0.25" transform="rotate(-30 44 45)" filter="url(#b1)"/>
+  </g>
+  <path d="M54.69 29.41 C54.99 34.67 51.58 42.00 47.35 46.02 C43.12 50.03 34.77 53.67 29.30 53.50 C23.84 53.33 17.71 48.40 14.57 44.99 C11.42 41.58 10.42 37.82 10.45 33.04 C10.48 28.25 11.70 20.35 14.74 16.28 C17.77 12.20 23.53 8.90 28.67 8.59 C33.81 8.29 41.23 10.98 45.56 14.45 C49.90 17.92 54.40 24.14 54.69 29.41 Z" fill="none" stroke="#0a285d" stroke-opacity="0.55" stroke-width="0.9"/>
+</svg>

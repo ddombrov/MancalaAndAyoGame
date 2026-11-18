@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mancala</title>
+  <link rel="icon" href="/img/icons/mancala.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/style.css" />
+  <style>
+    .home { min-height: 100%; max-width: 680px; margin: 0 auto; padding: 32px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 28px; }
+    .hero { text-align: center; }
+    .hero img { width: 120px; height: 120px; filter: drop-shadow(0 12px 20px rgba(0,0,0,.5)); }
+    h1 { margin: 0; font-size: 48px; font-weight: 800; letter-spacing: -0.02em; }
+    .modes { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .mode {
+      display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; border-radius: calc(var(--radius) + 4px);
+      border: 1px solid var(--border); background: var(--card); color: var(--foreground); font: inherit; font-weight: 600; font-size: 16px;
+      text-align: left; cursor: pointer; transition: border-color .15s, background .15s;
+    }
+    .mode:hover { border-color: var(--primary); background: var(--accent); }
+    .mode img { width: 46px; height: 46px; flex: none; }
+    .players { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .code-input { text-align: center; font-size: 36px; font-weight: 800; letter-spacing: .4em; padding: 10px 0 10px .4em; }
+    .seats { display: grid; gap: 8px; }
+    .seats .btn { height: 48px; font-size: 17px; }
+    .searching { display: flex; align-items: center; gap: 12px; color: var(--muted-foreground); font-size: 14px; }
+    .spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid var(--input); border-top-color: var(--primary); animation: spin .8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @media (max-width: 560px) { .modes, .players { grid-template-columns: 1fr; } h1 { font-size: 38px; } }
+  </style>
+</head>
+<body>
+  <main class="home">
+    <div class="hero">
+      <img src="/img/icons/mancala.png" alt="" />
+      <h1>Mancala</h1>
+    </div>
+    <div class="modes">
+      <button type="button" class="mode" data-mode="device"><img src="/img/icons/friends.png" alt="" />Play on this device</button>
+      <button type="button" class="mode" data-mode="ai"><img src="/img/icons/ai.png" alt="" />Play the computer</button>
+      <button type="button" class="mode" data-mode="online"><img src="/img/icons/online.png" alt="" />Play with friends</button>
+      <button type="button" class="mode" data-mode="quick"><img src="/img/icons/quick-play.png" alt="" />Quick match</button>
+    </div>
+    <button type="button" class="btn btn-ghost" id="openSettings"><img src="/img/icons/settings.png" alt="" />Settings</button>
+  </main>
+
+  <!-- New game on this device or against the computer -->
+  <div class="overlay" id="setupDialog" hidden>
+    <form class="dialog" id="setupForm" novalidate>
+      <h2 id="setupTitle">Play on this device</h2>
+      <div class="body">
+        <div>
+          <div class="field-label">Rules</div>
+          <div class="segmented rules-choice">
+            <button type="button" data-rules="kalah" class="on">Kalah</button>
+            <button type="button" data-rules="ayo">Ayo</button>
+          </div>
+        </div>
+        <div id="levelField">
+          <div class="field-label">Difficulty</div>
+          <div class="segmented" id="levels">
+            <button type="button" data-level="easy">Easy</button>
+            <button type="button" data-level="medium" class="on">Medium</button>
+            <button type="button" data-level="hard">Hard</button>
+          </div>
+        </div>
+        <div class="players">
+          <div>
+            <div class="field-label"><label for="player1" id="player1Label">Player 1</label></div>
+            <input class="input" id="player1" maxlength="20" placeholder="Name" autocomplete="off" />
+          </div>
+          <div id="player2Field">
+            <div class="field-label"><label for="player2">Player 2</label></div>
+            <input class="input" id="player2" maxlength="20" placeholder="Name" autocomplete="off" />
+          </div>
+        </div>
+        <p class="error" id="setupError" hidden></p>
+      </div>
+      <div class="footer">
+        <button type="button" class="btn btn-outline" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="startButton" disabled>Start game</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Resume -->
+  <div class="overlay" id="resumeDialog" hidden>
+    <div class="dialog small">
+      <h2>Resume your game?</h2>
+      <p class="description" id="resumeText"></p>
+      <div class="footer">
+        <button type="button" class="btn btn-outline" id="newInstead">New game</button>
+        <button type="button" class="btn btn-primary" id="resumeButton">Resume game</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- With friends -->
+  <div class="overlay" id="onlineDialog" hidden>
+    <div class="dialog">
+      <h2>Play with friends</h2>
+      <div class="body">
+        <div class="segmented" id="onlineTabs">
+          <button type="button" class="on" data-tab="create">Create a game</button>
+          <button type="button" data-tab="join">Join with a code</button>
+        </div>
+        <div id="onlineRules">
+          <div class="field-label">Rules</div>
+          <div class="segmented rules-choice">
+            <button type="button" data-rules="kalah" class="on">Kalah</button>
+            <button type="button" data-rules="ayo">Ayo</button>
+          </div>
+        </div>
+        <div>
+          <div class="field-label"><label for="onlineName">Your name</label></div>
+          <input class="input" id="onlineName" maxlength="20" placeholder="Name" autocomplete="off" />
+        </div>
+        <div id="codeField" hidden>
+          <div class="field-label"><label for="codeInput">Game code</label></div>
+          <input class="input code-input" id="codeInput" inputmode="numeric" maxlength="5" placeholder="00000" autocomplete="off" />
+        </div>
+        <div class="seats" id="seats" hidden>
+          <p class="description">This game already has two players. Which one are you?</p>
+        </div>
+        <p class="error" id="onlineError" hidden></p>
+      </div>
+      <div class="footer">
+        <button type="button" class="btn btn-outline" data-close>Cancel</button>
+        <button type="button" class="btn btn-primary" id="onlineGo" disabled>Create game</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick match -->
+  <div class="overlay" id="quickDialog" hidden>
+    <div class="dialog small">
+      <h2>Quick match</h2>
+      <div class="body">
+        <div id="quickNameField">
+          <div class="field-label"><label for="quickName">Your name</label></div>
+          <input class="input" id="quickName" maxlength="20" placeholder="Name" autocomplete="off" />
+        </div>
+        <div class="searching" id="searching" hidden><span class="spinner"></span>Looking for an opponent…</div>
+        <p class="error" id="quickError" hidden></p>
+      </div>
+      <div class="footer">
+        <button type="button" class="btn btn-outline" id="quickCancel">Cancel</button>
+        <button type="button" class="btn btn-primary" id="quickGo" disabled>Find a match</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="overlay" id="settingsDialog" hidden>
+    <div class="dialog small">
+      <h2>Settings</h2>
+      <div class="body">
+        <div><div class="field-label">Board</div><div class="segmented" id="boardLooks"></div></div>
+        <div><div class="field-label">Stones</div><div class="segmented" id="stoneSets"></div></div>
+        <button type="button" class="btn btn-outline" id="openRules"><img src="/img/icons/rules.png" alt="" />Rules</button>
+      </div>
+      <div class="footer"><button type="button" class="btn btn-primary" data-close>Done</button></div>
+    </div>
+  </div>
+
+  <div class="overlay" id="rulesDialog" hidden>
+    <div class="dialog">
+      <h2>Rules</h2>
+      <div class="body" id="rulesBody"></div>
+      <div class="footer"><button type="button" class="btn btn-primary" data-close>Got it</button></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createGame, sameName, RULE_NAMES } from "/engine.js";
+    import { $, api, savedName, rememberName, saveSeat, loadSave, writeSave, clearSave,
+             BOARDS, STONE_SET_NAMES, getBoardLook, setBoardLook, getStoneSet, setStoneSet, RULES_HTML } from "/app.js";
+
+    $("rulesBody").innerHTML = RULES_HTML;
+    const open = (id) => { $(id).hidden = false; };
+    const close = (id) => { $(id).hidden = true; };
+    const showError = (id, message) => { $(id).textContent = message; $(id).hidden = !message; };
+
+    let quickTicket = null, quickTimer = null;
+    function stopQuick() {
+      clearInterval(quickTimer);
+      quickTimer = null;
+      if (quickTicket) api("DELETE", "/quick/" + quickTicket).catch(() => {});
+      quickTicket = null;
+    }
+    document.querySelectorAll(".overlay").forEach((overlay) => overlay.addEventListener("click", (e) => {
+      if (e.target === overlay || e.target.closest("[data-close]")) {
+        overlay.hidden = true;
+        if (overlay.id === "quickDialog") stopQuick();
+      }
+    }));
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      document.querySelectorAll(".overlay").forEach((o) => (o.hidden = true));
+      stopQuick();
+    });
+
+    // A segmented control: returns a getter for the chosen value.
+    function segmented(container, attr) {
+      let value = container.querySelector("button.on")?.dataset[attr];
+      container.querySelectorAll("button").forEach((b) => b.addEventListener("click", () => {
+        value = b.dataset[attr];
+        container.querySelectorAll("button").forEach((x) => x.classList.toggle("on", x === b));
+      }));
+      return () => value;
+    }
+    const [deviceRules, onlineRules] = [...document.querySelectorAll(".rules-choice")].map((c) => segmented(c, "rules"));
+    const level = segmented($("levels"), "level");
+
+    const goToRoom = ({ code, seat, token }) => { saveSeat(code, seat, token); location.href = "/play.html?room=" + code; };
+
+    // ---------- on this device / against the computer ----------
+    let setupMode = "device";
+    const p1 = $("player1"), p2 = $("player2"), start = $("startButton");
+    function validate() {
+      const ai = setupMode === "ai";
+      const filled = p1.value.trim() && (ai || p2.value.trim());
+      const clash = !ai && filled && sameName(p1.value, p2.value);
+      showError("setupError", clash ? "That name is taken, pick another." : "");
+      start.disabled = !filled || clash;
+    }
+    [p1, p2].forEach((input) => input.addEventListener("input", validate));
+    function openSetup(mode) {
+      setupMode = mode;
+      const ai = mode === "ai";
+      $("setupTitle").textContent = ai ? "Play the computer" : "Play on this device";
+      $("levelField").hidden = !ai;
+      $("player2Field").hidden = ai;
+      $("player1Label").textContent = ai ? "Your name" : "Player 1";
+      if (!p1.value.trim()) p1.value = savedName();
+      validate();
+      open("setupDialog");
+      (p1.value.trim() && !ai ? p2 : p1).focus();
+    }
+    $("setupForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      validate();
+      if (start.disabled) return;
+      rememberName(p1.value);
+      const ai = setupMode === "ai";
+      const names = [p1.value.trim(), ai ? "Computer" : p2.value.trim()];
+      writeSave(setupMode, { S: createGame(deviceRules(), names), level: ai ? level() : null });
+      location.href = "/play.html?mode=" + setupMode;
+    });
+
+    // Like Splendor Duel: starting a game on this device or against the computer offers to resume the unfinished one.
+    let resumeMode = null;
+    function pick(mode) {
+      const save = loadSave(mode);
+      if (!save) return openSetup(mode);
+      resumeMode = mode;
+      $("resumeText").textContent = `${save.S.players[0]} vs ${save.S.players[1]}, ${RULE_NAMES[save.S.rules]} rules, is still in progress.`;
+      open("resumeDialog");
+    }
+    $("resumeButton").addEventListener("click", () => { location.href = "/play.html?mode=" + resumeMode; });
+    $("newInstead").addEventListener("click", () => { clearSave(resumeMode); close("resumeDialog"); openSetup(resumeMode); });
+
+    // ---------- with friends ----------
+    let tab = "create";
+    const onlineName = $("onlineName"), codeInput = $("codeInput"), onlineGo = $("onlineGo");
+    function updateOnline() {
+      onlineGo.disabled = !(onlineName.value.trim() && (tab === "create" || codeInput.value.length === 5));
+      onlineGo.textContent = tab === "create" ? "Create game" : "Join game";
+    }
+    function setTab(next) {
+      tab = next;
+      document.querySelectorAll("#onlineTabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === tab));
+      $("codeField").hidden = tab !== "join";
+      $("onlineRules").hidden = tab !== "create";
+      $("seats").hidden = true;
+      onlineGo.hidden = false;
+      showError("onlineError", "");
+      updateOnline();
+      (tab === "join" && onlineName.value.trim() ? codeInput : onlineName).focus();
+    }
+    document.querySelectorAll("#onlineTabs button").forEach((b) => b.addEventListener("click", () => setTab(b.dataset.tab)));
+    onlineName.addEventListener("input", () => { showError("onlineError", ""); updateOnline(); });
+    codeInput.addEventListener("input", () => { codeInput.value = codeInput.value.replace(/\D/g, "").slice(0, 5); showError("onlineError", ""); updateOnline(); });
+    [onlineName, codeInput].forEach((i) => i.addEventListener("keydown", (e) => { if (e.key === "Enter" && !onlineGo.disabled) onlineGo.click(); }));
+
+    function showSeats(code, names) {
+      const box = $("seats");
+      box.querySelectorAll("button").forEach((b) => b.remove());
+      names.forEach((name, seat) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "btn btn-outline";
+        button.textContent = name;
+        button.addEventListener("click", async () => {
+          try { goToRoom(await api("POST", `/rooms/${code}/claim`, { seat })); } catch (err) { showError("onlineError", err.message); }
+        });
+        box.appendChild(button);
+      });
+      box.hidden = false;
+      onlineGo.hidden = true;
+    }
+    onlineGo.addEventListener("click", async () => {
+      const name = onlineName.value.trim();
+      onlineGo.disabled = true;
+      try {
+        rememberName(name);
+        if (tab === "create") goToRoom(await api("POST", "/rooms", { name, rules: onlineRules() }));
+        else goToRoom(await api("POST", `/rooms/${codeInput.value}/join`, { name }));
+      } catch (err) {
+        if (err.reason === "full" && err.names) showSeats(codeInput.value, err.names);
+        else showError("onlineError", err.message);
+        updateOnline();
+      }
+    });
+    function playOnline() {
+      if (!onlineName.value.trim()) onlineName.value = savedName();
+      open("onlineDialog");
+      setTab("create");
+    }
+
+    // ---------- quick match ----------
+    const quickName = $("quickName"), quickGo = $("quickGo");
+    quickName.addEventListener("input", () => { quickGo.disabled = !quickName.value.trim(); });
+    quickName.addEventListener("keydown", (e) => { if (e.key === "Enter" && !quickGo.disabled) quickGo.click(); });
+    function playQuick() {
+      if (!quickName.value.trim()) quickName.value = savedName();
+      quickGo.disabled = !quickName.value.trim();
+      $("quickNameField").hidden = false;
+      $("searching").hidden = true;
+      quickGo.hidden = false;
+      showError("quickError", "");
+      open("quickDialog");
+      quickName.focus();
+    }
+    quickGo.addEventListener("click", async () => {
+      const name = quickName.value.trim();
+      rememberName(name);
+      $("quickNameField").hidden = true;
+      $("searching").hidden = false;
+      quickGo.hidden = true;
+      try {
+        quickTicket = (await api("POST", "/quick", { name })).ticket;
+        quickTimer = setInterval(async () => {
+          try {
+            const result = await api("GET", "/quick/" + quickTicket);
+            if (result.code) { clearInterval(quickTimer); quickTicket = null; goToRoom(result); }
+            else if (result.gone) { stopQuick(); playQuick(); showError("quickError", "No one turned up. Try again."); }
+          } catch { /* try again on the next tick */ }
+        }, 1500);
+      } catch (err) {
+        playQuick();
+        showError("quickError", err.message);
+      }
+    });
+    $("quickCancel").addEventListener("click", () => { stopQuick(); close("quickDialog"); });
+
+    // ---------- settings ----------
+    function choices(container, options, get, set) {
+      container.innerHTML = "";
+      for (const [value, label] of Object.entries(options)) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = label;
+        b.classList.toggle("on", value === get());
+        b.addEventListener("click", () => { set(value); choices(container, options, get, set); });
+        container.appendChild(b);
+      }
+    }
+    $("openSettings").addEventListener("click", () => {
+      choices($("boardLooks"), BOARDS, getBoardLook, setBoardLook);
+      choices($("stoneSets"), STONE_SET_NAMES, getStoneSet, setStoneSet);
+      open("settingsDialog");
+    });
+    $("openRules").addEventListener("click", () => { close("settingsDialog"); open("rulesDialog"); });
+
+    const MODES = { device: () => pick("device"), ai: () => pick("ai"), online: playOnline, quick: playQuick };
+    document.querySelectorAll(".mode").forEach((b) => b.addEventListener("click", () => MODES[b.dataset.mode]()));
+  </script>
+</body>
+</html>

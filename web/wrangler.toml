@@ -1,0 +1,18 @@
+name = "mancala"
+main = "src/index.js"
+compatibility_date = "2025-09-01"
+
+# The game's pages, served from the same address as the API so there is one link to share.
+[assets]
+directory = "./public"
+run_worker_first = ["/api/*"]
+
+# The weekly cleanup of online games nobody has touched for seven days: Mondays at 04:00 UTC.
+[triggers]
+crons = ["0 4 * * 1"]
+
+# The real database. Local development ignores the id and uses a database in the .wrangler folder.
+[[d1_databases]]
+binding = "DB"
+database_name = "mancala"
+database_id = "d1c675f7-ece4-4f53-bd04-45176a08f33a"

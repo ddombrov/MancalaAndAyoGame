@@ -1,0 +1,14 @@
+{
+  "name": "mancala",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "db:local": "wrangler d1 execute mancala --local --file=schema.sql",
+    "dev": "wrangler dev --local --port 8789",
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.162.0"
+  }
+}

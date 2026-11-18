@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mancala</title>
+<link rel="icon" href="/img/icons/mancala.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/style.css">
+<style>
+  body { display: flex; flex-direction: column; align-items: center; padding: 10px 16px 14px; overflow: hidden; }
+  .wrap { width: 100%; max-width: 1240px; flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .topbar { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+  .topbar .title { font-weight: 800; font-size: 18px; }
+  .player {
+    display: flex; align-items: center; gap: 10px; padding: 6px 16px; border-radius: 99px; background: var(--card);
+    border: 1px solid var(--border); font-weight: 700; font-size: 16px; transition: border-color .2s, background .2s;
+  }
+  .player.active { border-color: var(--primary); background: linear-gradient(180deg, rgba(231,178,90,.16), rgba(231,178,90,.04)); }
+  .badge { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--primary-foreground);
+           background: var(--primary); padding: 2px 8px; border-radius: 99px; visibility: hidden; }
+  .player.active .badge { visibility: visible; }
+  .stage { flex: 1; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; }
+  .stage .board { width: min(100%, calc((100vh - 230px) * 1200 / 440)); }
+  #message { padding: 6px 16px; border-radius: 99px; background: var(--card); border: 1px solid var(--border); font-size: 14px; font-weight: 500; min-height: 32px; }
+  .game-code { margin: 14px 0; font-size: 44px; font-weight: 800; letter-spacing: .3em; padding-left: .3em; color: var(--primary); }
+  .winner-icon { width: 84px; height: 84px; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <button type="button" class="btn btn-ghost" id="leave">&larr; Leave game</button>
+    <span class="title" id="title">Mancala</span>
+    <button type="button" class="btn btn-ghost" id="openRules"><img src="/img/icons/rules.png" alt="">Rules</button>
+  </div>
+  <div class="player" id="p1"><span class="name"></span><span class="badge">To move</span></div>
+  <div class="stage"><div id="board"></div></div>
+  <div class="player" id="p0"><span class="name"></span><span class="badge">To move</span></div>
+  <div id="message">Loading…</div>
+</div>
+
+<div class="overlay" id="waitingDialog" hidden>
+  <div class="dialog small center">
+    <h2>Share this code</h2>
+    <p class="game-code" id="waitingCode"></p>
+    <p class="description">Your friend chooses Play with friends, then Join with a code. The game starts when they join.</p>
+    <p class="error" id="waitingError" hidden></p>
+    <div class="footer">
+      <button type="button" class="btn btn-outline" id="copyCode">Copy code</button>
+      <button type="button" class="btn btn-primary" id="cancelRoom">Cancel game</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="leaveDialog" hidden>
+  <div class="dialog small">
+    <h2>Leave this game?</h2>
+    <p class="description" id="leaveText">The game is saved. You can resume it from the home page.</p>
+    <div class="footer">
+      <button type="button" class="btn btn-outline" data-close>Stay</button>
+      <a class="btn btn-primary" href="/">Leave</a>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="rulesDialog" hidden>
+  <div class="dialog">
+    <h2>Rules</h2>
+    <div class="body" id="rulesBody"></div>
+    <div class="footer"><button type="button" class="btn btn-primary" data-close>Got it</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="winnerDialog" hidden>
+  <div class="dialog small center">
+    <img class="winner-icon" src="/img/icons/mancala.png" alt="">
+    <h2 id="winnerTitle"></h2>
+    <p class="description" id="winnerText"></p>
+    <div class="footer">
+      <a class="btn btn-outline" href="/">Back to home</a>
+      <button type="button" class="btn btn-primary" id="again">Play again</button>
+    </div>
+  </div>
+</div>
+
+<script src="/confetti.js"></script>
+<script type="module">
+import { createGame, play, legalMoves, computerMove, RULE_NAMES } from "/engine.js";
+import { $, api, readSeat, loadSave, writeSave, clearSave, getBoardLook, getStoneSet, celebrate, RULES_HTML } from "/app.js";
+import { createBoard } from "/board.js";
+
+const POLL_MS = 1200;
+const params = new URLSearchParams(location.search);
+const roomCode = params.get("room");
+const mode = roomCode ? "online" : params.get("mode") === "ai" ? "ai" : "device";
+const mine = roomCode ? readSeat(roomCode) : null;
+const save = mode === "online" ? null : loadSave(mode);
+
+let S = null, rev = 0, seated = true, busy = false, celebrated = false;
+
+$("rulesBody").innerHTML = RULES_HTML;
+document.querySelectorAll(".overlay").forEach((overlay) => overlay.addEventListener("click", (e) => {
+  if (["winnerDialog", "waitingDialog"].includes(overlay.id)) return;
+  if (e.target === overlay || e.target.closest("[data-close]")) overlay.hidden = true;
+}));
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") ["leaveDialog", "rulesDialog"].forEach((id) => ($(id).hidden = true)); });
+$("leave").addEventListener("click", () => ($("leaveDialog").hidden = false));
+$("openRules").addEventListener("click", () => ($("rulesDialog").hidden = false));
+
+const board = createBoard($("board"), { boardLook: getBoardLook(), stoneSet: getStoneSet(), onPit: (pit) => move(pit) });
+
+// Whether this screen may play the current turn.
+const myTurn = () => !S.over && !busy && (mode === "device" || (mode === "ai" && S.turn === 0) || (mode === "online" && seated && S.turn === mine.seat));
+
+function render() {
+  const you = (i) => (mode === "online" && mine.seat === i) || (mode === "ai" && i === 0) ? " (you)" : "";
+  [0, 1].forEach((i) => {
+    const panel = $("p" + i);
+    panel.classList.toggle("active", !S.over && S.turn === i);
+    panel.querySelector(".name").textContent = (S.players[i] || "Waiting…") + you(i);
+  });
+  $("title").textContent = mode === "online" ? `Game ${roomCode} · ${RULE_NAMES[S.rules]}` : `Mancala · ${RULE_NAMES[S.rules]}`;
+  document.title = `${S.players[0]} vs ${S.players[1] || "…"} · Mancala`;
+  $("message").textContent = mode === "online" && !seated ? "Waiting for a second player…"
+    : mode === "ai" && S.turn === 1 && !S.over ? "The computer is thinking…" : S.message;
+  board.highlight(myTurn() ? legalMoves(S) : []);
+  if (S.over && !celebrated) {
+    celebrated = true;
+    if (mode !== "online") clearSave(mode);
+    $("winnerTitle").textContent = S.winner === null ? "It's a draw" : `${S.players[S.winner]} wins!`;
+    $("winnerText").textContent = S.message;
+    $("again").hidden = mode === "online";
+    setTimeout(() => { $("winnerDialog").hidden = false; celebrate(); }, 400);
+  }
+}
+
+async function show(result) {
+  busy = true;
+  render();
+  await board.animate(result.steps);
+  busy = false;
+  S = result.state;
+  board.set(S.board);
+  render();
+}
+
+async function move(pit) {
+  if (!myTurn()) return;
+  const result = play(S, pit);
+  if (!result) return;
+  if (mode !== "online") {
+    await show(result);
+    writeSave(mode, { S, level: save.level });
+    if (mode === "ai") computerTurn();
+    return;
+  }
+  // Online: animate straight away while the Worker checks and stores the move.
+  const sent = api("POST", `/rooms/${roomCode}/move`, { token: mine.token, rev, pit });
+  sent.catch(() => {});
+  await show(result);
+  try {
+    const game = await sent;
+    rev = game.rev;
+    S = game;
+  } catch (error) {
+    if (error.game) { S = error.game; rev = error.game.rev; seated = error.game.seated; }
+    board.set(S.board);
+    render();
+    $("message").textContent = error.message;
+  }
+}
+
+async function computerTurn() {
+  while (mode === "ai" && !S.over && S.turn === 1) {
+    render();
+    await new Promise((r) => setTimeout(r, 700));
+    await show(play(S, computerMove(S, save.level)));
+    writeSave(mode, { S, level: save.level });
+  }
+}
+
+$("again").addEventListener("click", () => {
+  writeSave(mode, { S: createGame(S.rules, S.players), level: save?.level ?? null });
+  location.reload();
+});
+
+// ---------- online ----------
+const fetchRoom = () => api("GET", `/rooms/${roomCode}?token=${encodeURIComponent(mine.token)}`);
+
+function showMissing(text) {
+  $("message").innerHTML = `${text} <a href="/" style="color: var(--primary)">Back to home</a>`;
+}
+
+function showWaiting() {
+  $("waitingDialog").hidden = !(mode === "online" && !seated && mine.seat === 0);
+  $("waitingCode").textContent = roomCode;
+}
+
+async function poll() {
+  if (!busy && S && !S.over) {
+    try {
+      const game = await fetchRoom();
+      if (!busy) {
+        // The other player's move: replay it from the board we have, then take the stored game.
+        if (game.rev === rev + 1 && game.last && game.last.player !== mine.seat) {
+          const result = play(S, game.last.pit);
+          if (result) await show(result);
+        }
+        rev = game.rev;
+        seated = game.seated;
+        S = game;
+        board.set(S.board);
+        render();
+        showWaiting();
+      }
+    } catch (error) {
+      if (error.reason === "forbidden" || error.reason === "notfound") {
+        return showMissing(error.reason === "forbidden" ? "Someone else took your seat in this game." : "This game no longer exists.");
+      }
+    }
+  }
+  setTimeout(poll, POLL_MS);
+}
+
+$("copyCode").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText(roomCode); $("copyCode").textContent = "Copied"; } catch { /* clipboard blocked */ }
+});
+$("cancelRoom").addEventListener("click", async () => {
+  try {
+    await api("DELETE", `/rooms/${roomCode}`, { token: mine.token });
+    location.href = "/";
+  } catch (error) {
+    $("waitingError").textContent = error.message;
+    $("waitingError").hidden = false;
+  }
+});
+
+// ---------- start ----------
+if (mode === "online") {
+  $("leaveText").textContent = `To come back, choose Play with friends, then join with code ${roomCode}.`;
+  if (!mine) showMissing("You are not in this game. Join it with its code from the home page.");
+  else {
+    try {
+      const game = await fetchRoom();
+      S = game; rev = game.rev; seated = game.seated;
+      board.set(S.board);
+      render();
+      showWaiting();
+      setTimeout(poll, POLL_MS);
+    } catch (error) {
+      showMissing(error.reason === "forbidden" ? "Someone else took your seat in this game." : "This game could not be found.");
+    }
+  }
+} else if (!save) {
+  showMissing("There is no game to resume.");
+} else {
+  S = save.S;
+  board.set(S.board);
+  render();
+  if (mode === "ai") computerTurn();
+}
+</script>
+</body>
+</html>
