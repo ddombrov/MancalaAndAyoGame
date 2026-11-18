@@ -19,6 +19,35 @@ public class MancalaDataStructure implements Serializable {
     private int iteratorPos = 0;
     private int playerSkip = PLAYER_TWO;
     private int pitSkip = -1; // will never match the iteratorPos unless set specifically
+    private transient StoneListener listener;
+
+    /**
+     * Observes every change in stone counts, so a UI can replay a move step by step.
+     */
+    public interface StoneListener {
+        /**
+         * Called after stones are added to or removed from a position.
+         *
+         * @param slot  pit number 1-12, or 13 / 14 for player 1 / player 2's store
+         * @param delta stones added (positive) or removed (negative)
+         */
+        void stonesChanged(int slot, int delta);
+    }
+
+    /**
+     * Sets the listener notified of stone changes, or null to stop notifying.
+     *
+     * @param listener the listener
+     */
+    public void setStoneListener(StoneListener listener) {
+        this.listener = listener;
+    }
+
+    private void notifyListener(int slot, int delta) {
+        if (listener != null && delta != 0) {
+            listener.stonesChanged(slot, delta);
+        }
+    }
 
     /**
      * Constructor to initialize the MancalaDataStructure.
@@ -55,6 +84,7 @@ public class MancalaDataStructure implements Serializable {
     public int addStones(int pitNum, int numToAdd) {
         Countable pit = data.get(pitPos(pitNum));
         pit.addStones(numToAdd);
+        notifyListener(pitNum, numToAdd);
         return pit.getStoneCount();
     }
 
@@ -66,7 +96,9 @@ public class MancalaDataStructure implements Serializable {
      */
     public int removeStones(int pitNum) {
         Countable pit = data.get(pitPos(pitNum));
-        return pit.removeStones();
+        int removed = pit.removeStones();
+        notifyListener(pitNum, -removed);
+        return removed;
     }
 
     /**
@@ -79,6 +111,7 @@ public class MancalaDataStructure implements Serializable {
     public int addToStore(int playerNum, int numToAdd) {
         Countable store = data.get(storePos(playerNum));
         store.addStones(numToAdd);
+        notifyListener(12 + playerNum, numToAdd);
         return store.getStoneCount();
     }
 

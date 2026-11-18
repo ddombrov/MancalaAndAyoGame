@@ -1,88 +1,80 @@
+package ui;
+
+import java.awt.Container;
+import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
+import java.util.Arrays;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+
 /**
- * Took concepts from the lab and online tutorial but not done
+ * Window for playing Mancala. It shows either the home page or a game.
  */
+public class MancalaGUI extends JFrame {
+    private final HomePanel home = new HomePanel(this::showGame);
 
-// package ui;
+    /**
+     * Builds the window and opens the home page.
+     */
+    public MancalaGUI() {
+        this(false);
+    }
 
-// import javax.swing.*;
-// import java.awt.*;
-// import java.awt.event.ActionEvent;
+    /**
+     * Builds the window and opens the home page.
+     *
+     * @param browser true to fill the whole display without a title bar, for running in a web page
+     */
+    public MancalaGUI(boolean browser) {
+        super("Mancala");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        if (browser) {
+            setUndecorated(true);
+            setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
+        } else {
+            setSize(1180, 700);
+            setMinimumSize(new Dimension(860, 540));
+            setLocationRelativeTo(null);
+        }
+        showHome();
+    }
 
-// public class MancalaGUI extends JFrame {
-// private JPanel gameContainer;
-// private PositionAwareButton[][] buttons;
-// private MancalaGame game;
+    private void showHome() {
+        show(home);
+    }
 
-// public MancalaGUI(String windowTitle, int width, int height) {
+    private void showGame(boolean kalah, String player1, String player2) {
+        show(new BoardPanel(kalah, player1, player2, this::showHome));
+    }
 
-// // MancalaGame game;
-// // System.out.println("k or a?");
-// // GameRules theBoard;
-// // int abc;
-// // Scanner scanner = new Scanner(System.in);
+    private void show(Container page) {
+        setContentPane(page);
+        revalidate();
+        repaint();
+    }
 
-// // if (scanner.nextLine().equals("k")) {
-// // game = new MancalaGame(0);
-// // theBoard = new KalahRules();
-// // abc = 5;
-// // } else {
-// // game = new MancalaGame(1);
-// // theBoard = new AyoRules();
-// // abc = 10;
-// // }
+    /**
+     * Launches the GUI.
+     *
+     * @param args pass --browser when running inside a web page
+     */
+    public static void main(String[] args) {
+        boolean browser = Arrays.asList(args).contains("--browser");
+        SwingUtilities.invokeLater(() -> {
+            new MancalaGUI(browser).setVisible(true);
+            if (browser) {
+                // Runs after the first paint, so the web page can drop its loading screen.
+                SwingUtilities.invokeLater(() -> {
+                    try {
+                        gameShown();
+                    } catch (UnsatisfiedLinkError e) {
+                        // The page did not provide the hook; nothing to tell it.
+                    }
+                });
+            }
+        });
+    }
 
-// super();
-// setTitle(windowTitle);
-// setSize(width, height);
-// setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-// game = new MancalaGame();
-// Container contentPane = getContentPane();
-// contentPane.setLayout(new BorderLayout());
-
-// gameContainer = new JPanel();
-// gameContainer.setLayout(new GridLayout(2, 7));
-// populateGameGrid();
-
-// JScrollPane scrollPane = new JScrollPane(gameContainer);
-
-// contentPane.add(scrollPane, BorderLayout.CENTER);
-// contentPane.add(setupActionPanel(),BorderLayout.EAST);
-
-// pack();
-// }
-
-// private void populateGameGrid(MancalaGame game) {
-// buttons = new PositionAwareButton[2][7];
-// for (int row = 0; row < 2; row++) {
-// for (int col = 0; col < 7; col++) {
-// buttons[row][col] = new PositionAwareButton();
-// buttons[row][col].setAcross(col + 1);
-// buttons[row][col].setDown(row + 1);
-// buttons[row][col].addActionListener(this::enterMove);
-// gameContainer.add(buttons[row][col]);
-// }
-// }
-// }
-
-// private void enterMove(ActionEvent e) {
-// PositionAwareButton clicked = (PositionAwareButton) e.getSource();
-// int row = clicked.getDown() - 1;
-// int col = clicked.getAcross() - 1;
-// game.move(row, col);
-// updateView();
-// }
-
-// private void updateView() {
-// for (int row = 0; row < 2; row++) {
-// for (int col = 0; col < 7; col++) {
-// buttons[row][col].setText(Integer.toString(game.getStoneCount(row, col)));
-// }
-// }
-// }
-
-// public static void main(String[] args) {
-// Mancala gui = new MancalaGUI("Mancala Game", 600, 400);
-// gui.setVisible(true);
-// }
-// }
+    /** Implemented in JavaScript by the web page that hosts the game (CheerpJ natives). */
+    private static native void gameShown();
+}
