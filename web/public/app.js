@@ -23,7 +23,8 @@ export function loadSave(mode) {
 export const writeSave = (mode, save) => write(localStorage, `mancala:save:${mode}`, JSON.stringify({ ...save, at: Date.now() }));
 export const clearSave = (mode) => write(localStorage, `mancala:save:${mode}`, null);
 
-// The look of the board and stones, chosen in Settings.
+// The look, chosen in Settings: the modern board, or the Java version's Swing grid or text console.
+export const LOOKS = { modern: "Modern", classic: "Classic", text: "Text" };
 export const BOARDS = { walnut: "Walnut", oak: "Oak", ebony: "Ebony" };
 export const STONE_SETS = {
   mixed: ["amber", "blue", "green", "red", "purple", "teal", "white", "black"],
@@ -37,6 +38,29 @@ export const getBoardLook = () => pref("mancala:board", BOARDS, "walnut");
 export const setBoardLook = (v) => write(localStorage, "mancala:board", v);
 export const getStoneSet = () => pref("mancala:stones", STONE_SETS, "mixed");
 export const setStoneSet = (v) => write(localStorage, "mancala:stones", v);
+export const getLook = () => pref("mancala:look", LOOKS, "modern");
+export const setLook = (v) => write(localStorage, "mancala:look", v);
+
+// Fills the Settings dialog, which the home and game pages both have. The board and stone choices only
+// apply to the modern look. `onChange` runs after any choice.
+export function showSettings(onChange = () => {}) {
+  const choices = (container, options, get, set) => {
+    container.innerHTML = "";
+    for (const [value, label] of Object.entries(options)) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = label;
+      b.classList.toggle("on", value === get());
+      b.addEventListener("click", () => { set(value); showSettings(onChange); onChange(); });
+      container.appendChild(b);
+    }
+  };
+  choices($("looks"), LOOKS, getLook, setLook);
+  choices($("boardLooks"), BOARDS, getBoardLook, setBoardLook);
+  choices($("stoneSets"), STONE_SET_NAMES, getStoneSet, setStoneSet);
+  $("modernChoices").hidden = getLook() !== "modern";
+  $("settingsDialog").hidden = false;
+}
 
 // Calls the Worker. Throws an Error carrying the server's message, reason, names and latest game.
 export async function api(method, path, body) {

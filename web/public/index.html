@@ -157,8 +157,11 @@
     <div class="dialog small">
       <h2>Settings</h2>
       <div class="body">
-        <div><div class="field-label">Board</div><div class="segmented" id="boardLooks"></div></div>
-        <div><div class="field-label">Stones</div><div class="segmented" id="stoneSets"></div></div>
+        <div><div class="field-label">Look</div><div class="segmented" id="looks"></div></div>
+        <div class="stack" id="modernChoices">
+          <div><div class="field-label">Board</div><div class="segmented" id="boardLooks"></div></div>
+          <div><div class="field-label">Stones</div><div class="segmented" id="stoneSets"></div></div>
+        </div>
         <button type="button" class="btn btn-outline" id="openRules"><img src="/img/icons/rules.png" alt="" />Rules</button>
       </div>
       <div class="footer"><button type="button" class="btn btn-primary" data-close>Done</button></div>
@@ -176,7 +179,7 @@
   <script type="module">
     import { createGame, sameName, RULE_NAMES } from "/engine.js";
     import { $, api, savedName, rememberName, saveSeat, loadSave, writeSave, clearSave,
-             BOARDS, STONE_SET_NAMES, getBoardLook, setBoardLook, getStoneSet, setStoneSet, RULES_HTML } from "/app.js";
+             showSettings, RULES_HTML } from "/app.js";
 
     $("rulesBody").innerHTML = RULES_HTML;
     const open = (id) => { $(id).hidden = false; };
@@ -357,22 +360,7 @@
     $("quickCancel").addEventListener("click", () => { stopQuick(); close("quickDialog"); });
 
     // ---------- settings ----------
-    function choices(container, options, get, set) {
-      container.innerHTML = "";
-      for (const [value, label] of Object.entries(options)) {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.textContent = label;
-        b.classList.toggle("on", value === get());
-        b.addEventListener("click", () => { set(value); choices(container, options, get, set); });
-        container.appendChild(b);
-      }
-    }
-    $("openSettings").addEventListener("click", () => {
-      choices($("boardLooks"), BOARDS, getBoardLook, setBoardLook);
-      choices($("stoneSets"), STONE_SET_NAMES, getStoneSet, setStoneSet);
-      open("settingsDialog");
-    });
+    $("openSettings").addEventListener("click", () => showSettings());
     $("openRules").addEventListener("click", () => { close("settingsDialog"); open("rulesDialog"); });
 
     const MODES = { device: () => pick("device"), ai: () => pick("ai"), online: playOnline, quick: playQuick };

@@ -10,35 +10,63 @@
 <link rel="stylesheet" href="/style.css">
 <style>
   body { display: flex; flex-direction: column; align-items: center; padding: 10px 16px 14px; overflow: hidden; }
-  .wrap { width: 100%; max-width: 1240px; flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-  .topbar { width: 100%; display: flex; align-items: center; justify-content: space-between; }
-  .topbar .title { font-weight: 800; font-size: 18px; }
+  .wrap { width: 100%; max-width: 1400px; flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .topbar { width: 100%; display: flex; align-items: center; gap: 2px; }
+  .topbar .title { flex: 1; text-align: center; font-weight: 800; font-size: 18px; }
+  .icon-btn { width: 38px; padding: 0; }
+  .icon-btn img { width: 26px; height: 26px; }
+  /* Player 2's store is on the left and player 1's on the right, so each name sits under its store, with
+     the message between them: one row instead of a name above and below the board. */
+  .players { width: 100%; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+  .players #p0 { justify-self: end; }
+  .players #p1 { justify-self: start; }
   .player {
     display: flex; align-items: center; gap: 10px; padding: 6px 16px; border-radius: 99px; background: var(--card);
-    border: 1px solid var(--border); font-weight: 700; font-size: 16px; transition: border-color .2s, background .2s;
+    border: 1px solid var(--border); font-weight: 700; font-size: 16px; transition: border-color .2s, background .2s; min-width: 0;
   }
+  .player .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .player.active { border-color: var(--primary); background: linear-gradient(180deg, rgba(231,178,90,.16), rgba(231,178,90,.04)); }
-  .badge { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--primary-foreground);
+  .badge { flex: none; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--primary-foreground);
            background: var(--primary); padding: 2px 8px; border-radius: 99px; visibility: hidden; }
   .player.active .badge { visibility: visible; }
-  .stage { flex: 1; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; }
-  .stage .board { width: min(100%, calc((100vh - 230px) * 1200 / 440)); }
-  #message { padding: 6px 16px; border-radius: 99px; background: var(--card); border: 1px solid var(--border); font-size: 14px; font-weight: 500; min-height: 32px; }
+  .stage { flex: 1; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; container-type: size; }
+  .stage .board { width: min(100cqw, 100cqh * 1200 / 440); }
+  .stage .swing { width: min(100cqw, 100cqh * 2.2); height: min(100cqh, 100cqw / 2.2); }
+  .stage .console { width: min(100cqw, 900px); }
+  /* On a tall screen the board stands upright, player 2's side on the left and player 1's on the right,
+     under their names; the counts turn back so they stay readable. */
+  @container (max-aspect-ratio: 1 / 1) {
+    .stage .board { flex: none; width: min(100cqh, 100cqw * 1200 / 440); transform: rotate(-90deg); }
+    .stage .board .count { transform: translate(-50%, -50%) rotate(90deg); font-size: clamp(11px, 3.4vw, 16px); }
+  }
+  #message { padding: 6px 16px; border-radius: 99px; background: var(--card); border: 1px solid var(--border); font-size: 14px; font-weight: 500; text-align: center; }
+  #message:empty { visibility: hidden; }
   .game-code { margin: 14px 0; font-size: 44px; font-weight: 800; letter-spacing: .3em; padding-left: .3em; color: var(--primary); }
   .winner-icon { width: 84px; height: 84px; margin-bottom: 6px; }
+  @media (max-width: 640px) {
+    body { padding: 8px 10px; }
+    .players { grid-template-columns: 1fr 1fr; }
+    .players #p0, .players #p1 { justify-self: stretch; justify-content: space-between; }
+    #message { grid-column: 1 / -1; order: 1; }
+    #message:empty { display: none; }
+    .player { padding: 5px 12px; font-size: 15px; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="topbar">
-    <button type="button" class="btn btn-ghost" id="leave">&larr; Leave game</button>
+    <button type="button" class="btn btn-ghost icon-btn" id="leave" title="Leave game" aria-label="Leave game"><img src="/img/icons/leave-game.png" alt=""></button>
     <span class="title" id="title">Mancala</span>
-    <button type="button" class="btn btn-ghost" id="openRules"><img src="/img/icons/rules.png" alt="">Rules</button>
+    <button type="button" class="btn btn-ghost icon-btn" id="openRules" title="Rules" aria-label="Rules"><img src="/img/icons/rules.png" alt=""></button>
+    <button type="button" class="btn btn-ghost icon-btn" id="openSettings" title="Settings" aria-label="Settings"><img src="/img/icons/settings.png" alt=""></button>
   </div>
-  <div class="player" id="p1"><span class="name"></span><span class="badge">To move</span></div>
   <div class="stage"><div id="board"></div></div>
-  <div class="player" id="p0"><span class="name"></span><span class="badge">To move</span></div>
-  <div id="message">Loading…</div>
+  <div class="players">
+    <div class="player" id="p1"><span class="name"></span><span class="badge">To move</span></div>
+    <div id="message">Loading…</div>
+    <div class="player" id="p0"><span class="name"></span><span class="badge">To move</span></div>
+  </div>
 </div>
 
 <div class="overlay" id="waitingDialog" hidden>
@@ -73,6 +101,20 @@
   </div>
 </div>
 
+<div class="overlay" id="settingsDialog" hidden>
+  <div class="dialog small">
+    <h2>Settings</h2>
+    <div class="body">
+      <div><div class="field-label">Look</div><div class="segmented" id="looks"></div></div>
+      <div class="stack" id="modernChoices">
+        <div><div class="field-label">Board</div><div class="segmented" id="boardLooks"></div></div>
+        <div><div class="field-label">Stones</div><div class="segmented" id="stoneSets"></div></div>
+      </div>
+    </div>
+    <div class="footer"><button type="button" class="btn btn-primary" data-close>Done</button></div>
+  </div>
+</div>
+
 <div class="overlay" id="winnerDialog" hidden>
   <div class="dialog small center">
     <img class="winner-icon" src="/img/icons/mancala.png" alt="">
@@ -88,8 +130,9 @@
 <script src="/confetti.js"></script>
 <script type="module">
 import { createGame, play, legalMoves, computerMove, RULE_NAMES } from "/engine.js";
-import { $, api, readSeat, loadSave, writeSave, clearSave, getBoardLook, getStoneSet, celebrate, RULES_HTML } from "/app.js";
+import { $, api, readSeat, loadSave, writeSave, clearSave, getBoardLook, getStoneSet, getLook, showSettings, celebrate, RULES_HTML } from "/app.js";
 import { createBoard } from "/board.js";
+import { createClassicBoard, createTextBoard } from "/retro.js";
 
 const POLL_MS = 1200;
 const params = new URLSearchParams(location.search);
@@ -105,14 +148,28 @@ document.querySelectorAll(".overlay").forEach((overlay) => overlay.addEventListe
   if (["winnerDialog", "waitingDialog"].includes(overlay.id)) return;
   if (e.target === overlay || e.target.closest("[data-close]")) overlay.hidden = true;
 }));
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") ["leaveDialog", "rulesDialog"].forEach((id) => ($(id).hidden = true)); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") ["leaveDialog", "rulesDialog", "settingsDialog"].forEach((id) => ($(id).hidden = true)); });
 $("leave").addEventListener("click", () => ($("leaveDialog").hidden = false));
 $("openRules").addEventListener("click", () => ($("rulesDialog").hidden = false));
+// The board is built once for its look, so a change of look rebuilds the page; the game itself is saved.
+const look = getLook(), boardLook = getBoardLook(), stoneSet = getStoneSet();
+$("openSettings").addEventListener("click", () => showSettings(() => {
+  if (getLook() !== look || getBoardLook() !== boardLook || getStoneSet() !== stoneSet) location.reload();
+}));
 
-const board = createBoard($("board"), { boardLook: getBoardLook(), stoneSet: getStoneSet(), onPit: (pit) => move(pit) });
+const onPit = (pit) => move(pit);
+const board = look === "text" ? createTextBoard($("board"), { onPit, game: () => S, canPlay: () => myTurn() })
+  : look === "classic" ? createClassicBoard($("board"), { onPit })
+  : createBoard($("board"), { boardLook, stoneSet, onPit });
 
 // Whether this screen may play the current turn.
 const myTurn = () => !S.over && !busy && (mode === "device" || (mode === "ai" && S.turn === 0) || (mode === "online" && seated && S.turn === mine.seat));
+
+// The names already show whose turn it is, so only what the move did is written out.
+function eventMessage() {
+  const turnNote = `${S.players[S.turn]}'s turn.`;
+  return S.message.endsWith(turnNote) ? S.message.slice(0, -turnNote.length).trim() : S.message;
+}
 
 function render() {
   const you = (i) => (mode === "online" && mine.seat === i) || (mode === "ai" && i === 0) ? " (you)" : "";
@@ -124,7 +181,7 @@ function render() {
   $("title").textContent = mode === "online" ? `Game ${roomCode} · ${RULE_NAMES[S.rules]}` : `Mancala · ${RULE_NAMES[S.rules]}`;
   document.title = `${S.players[0]} vs ${S.players[1] || "…"} · Mancala`;
   $("message").textContent = mode === "online" && !seated ? "Waiting for a second player…"
-    : mode === "ai" && S.turn === 1 && !S.over ? "The computer is thinking…" : S.message;
+    : mode === "ai" && S.turn === 1 && !S.over ? "The computer is thinking…" : eventMessage();
   board.highlight(myTurn() ? legalMoves(S) : []);
   if (S.over && !celebrated) {
     celebrated = true;
