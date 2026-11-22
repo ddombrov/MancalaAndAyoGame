@@ -89,6 +89,7 @@
   <div class="overlay" id="resumeDialog" hidden>
     <div class="dialog small">
       <h2>Resume your game?</h2>
+      <p class="description" id="resumeText"></p>
       <div class="footer">
         <button type="button" class="btn btn-outline" id="newInstead">New game</button>
         <button type="button" class="btn btn-primary" id="resumeButton">Resume game</button>
@@ -121,7 +122,7 @@
           <input class="input code-input" id="codeInput" inputmode="numeric" maxlength="5" placeholder="00000" autocomplete="off" />
         </div>
         <div class="seats" id="seats" hidden>
-          <div class="field-label">Which player are you?</div>
+          <p class="description">This game already has two players. Which one are you?</p>
         </div>
         <p class="error" id="onlineError" hidden></p>
       </div>
@@ -176,7 +177,7 @@
   </div>
 
   <script type="module">
-    import { createGame, sameName } from "/engine.js";
+    import { createGame, sameName, RULE_NAMES } from "/engine.js";
     import { $, api, savedName, rememberName, saveSeat, loadSave, writeSave, clearSave,
              showSettings, RULES_HTML } from "/app.js";
 
@@ -258,6 +259,7 @@
       const save = loadSave(mode);
       if (!save) return openSetup(mode);
       resumeMode = mode;
+      $("resumeText").textContent = `${save.S.players[0]} vs ${save.S.players[1]}, ${RULE_NAMES[save.S.rules]} rules, is still in progress.`;
       open("resumeDialog");
     }
     $("resumeButton").addEventListener("click", () => { location.href = "/play.html?mode=" + resumeMode; });

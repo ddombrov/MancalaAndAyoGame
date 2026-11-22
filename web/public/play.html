@@ -72,6 +72,7 @@
   <div class="dialog small center">
     <h2>Share this code</h2>
     <p class="game-code" id="waitingCode"></p>
+    <p class="description">Send this code to your friend. They choose Play with friends, then Join with a code.</p>
     <p class="error" id="waitingError" hidden></p>
     <div class="footer">
       <button type="button" class="btn btn-outline" id="copyCode">Copy code</button>
@@ -83,6 +84,7 @@
 <div class="overlay" id="leaveDialog" hidden>
   <div class="dialog small">
     <h2>Leave this game?</h2>
+    <p class="description" id="leaveText">The game is saved. You can resume it from the home page.</p>
     <div class="footer">
       <button type="button" class="btn btn-outline" data-close>Stay</button>
       <a class="btn btn-primary" href="/">Leave</a>
@@ -123,6 +125,7 @@
   <div class="dialog small center">
     <img class="winner-icon" src="/img/icons/mancala.png" alt="">
     <h2 id="winnerTitle"></h2>
+    <p class="description" id="winnerText"></p>
     <div class="footer">
       <a class="btn btn-outline" href="/">Back to home</a>
       <button type="button" class="btn btn-primary" id="again">Play again</button>
@@ -189,7 +192,8 @@ function render() {
   if (S.over && !celebrated) {
     celebrated = true;
     if (mode !== "online") clearSave(mode);
-    $("winnerTitle").textContent = S.message;
+    $("winnerTitle").textContent = S.winner === null ? "It's a draw" : `${S.players[S.winner]} wins!`;
+    $("winnerText").textContent = S.message;
     $("again").hidden = mode === "online";
     setTimeout(() => { $("winnerDialog").hidden = false; celebrate(); }, 400);
   }
@@ -298,6 +302,7 @@ $("cancelRoom").addEventListener("click", async () => {
 
 // ---------- start ----------
 if (mode === "online") {
+  $("leaveText").textContent = `To come back, choose Play with friends, then join with code ${roomCode}.`;
   $("codeRow").hidden = false;
   $("codeText").textContent = roomCode;
   $("copyRoomCode").addEventListener("click", async () => {
