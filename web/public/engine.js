@@ -16,11 +16,27 @@ export const sameName = (a, b) => a.trim().toLowerCase() === b.trim().toLowerCas
 export function createGame(rules, players) {
   const board = Array(14).fill(STONES_PER_PIT);
   board[6] = board[13] = 0;
+  // Nobody moves until the players choose who goes first (or flip a coin for it). The log keeps every message.
   return { rules: rules === "ayo" ? "ayo" : "kalah", board, players: [...players], turn: 0, moves: 0,
-           over: false, winner: null, last: null, message: `${players[0] || "Player 1"} moves first.` };
+           over: false, winner: null, last: null, awaitingFirst: true, log: [], message: "Who goes first?" };
 }
 
-export const isLegal = (S, pit) => !S.over && Number.isInteger(pit) && ownsPit(S.turn, pit) && S.board[pit] > 0;
+const logged = (S, next) => ({ ...next, log: [...(S.log ?? []), next.message] });
+
+// The players chose who goes first.
+export function chooseFirst(S, player) {
+  if (!S.awaitingFirst || (player !== 0 && player !== 1)) return null;
+  return logged(S, { ...S, awaitingFirst: false, turn: player, message: `${S.players[player]} goes first.` });
+}
+
+// A player gives up: the other wins.
+export function resign(S, player) {
+  if (S.over || (player !== 0 && player !== 1)) return null;
+  const other = 1 - player;
+  return logged(S, { ...S, awaitingFirst: false, over: true, winner: other, resigned: player, message: `${S.players[player]} resigned. ${S.players[other]} wins!` });
+}
+
+export const isLegal = (S, pit) => !S.over && !S.awaitingFirst && Number.isInteger(pit) && ownsPit(S.turn, pit) && S.board[pit] > 0;
 export const legalMoves = (S) => [0, 1, 2, 3, 4, 5].map((i) => i + S.turn * 7).filter((pit) => isLegal(S, pit));
 
 // Plays one move. Returns { state, steps }, where steps describe every stone that moved, in order, for
@@ -85,7 +101,7 @@ export function play(S, pit) {
     next.winner = a > b ? 0 : b > a ? 1 : null;
     next.message = next.winner === null ? `It's a draw, ${a} to ${b}.` : `${S.players[next.winner]} wins, ${Math.max(a, b)} to ${Math.min(a, b)}!`;
   }
-  return { state: next, steps };
+  return { state: logged(S, next), steps };
 }
 
 // ---------- the computer opponent ----------

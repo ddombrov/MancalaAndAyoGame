@@ -6,9 +6,11 @@
 //   POST   /api/rooms/:code/claim   { seat }           -> a new token for that seat, for a player who lost theirs
 //   GET    /api/rooms/:code?token=                     -> the game as that seat sees it
 //   POST   /api/rooms/:code/move    { token, rev, pit } -> the game after the move
+//   POST   /api/rooms/:code/first   { token, player }   -> the host chooses who goes first
+//   POST   /api/rooms/:code/resign  { token }           -> that seat resigns
 //   DELETE /api/rooms/:code         { token }          -> the host cancels a game nobody has joined
 //   POST   /api/quick { name }, GET /api/quick/:ticket, DELETE /api/quick/:ticket -> quick match
-import { cleanName, createGame, play, sameName } from "../public/engine.js";
+import { chooseFirst, cleanName, createGame, play, resign, sameName } from "../public/engine.js";
 
 const WEEK = 7 * 24 * 60 * 60 * 1000;
 const QUEUE_WAIT = 70 * 1000; // a waiting quick match ticket that stops polling is dropped after this
@@ -98,6 +100,20 @@ async function rooms(db, method, parts, url, body) {
     if (res.meta.changes !== 1) return fail(409, "stale", "The game moved on. Showing the latest board.", { game: view(row, seat, S) });
     await db.prepare("INSERT INTO moves (room, rev, seat, pit, at) VALUES (?, ?, ?, ?, ?)").bind(code, row.rev + 1, seat, body.pit, now).run();
     return json(view({ ...row, rev: row.rev + 1 }, seat, result.state));
+  }
+
+  if (method === "POST" && (parts[3] === "first" || parts[3] === "resign")) {
+    const seat = seatOf(row, body.token);
+    if (seat === null) return fail(403, "forbidden", "You are not in that game.");
+    const S = JSON.parse(row.state);
+    if (parts[3] === "first" && seat !== 0) return fail(403, "host", "Player 1 chooses who goes first.", { game: view(row, seat, S) });
+    const next = parts[3] === "first" ? chooseFirst(S, body.player) : resign(S, seat);
+    if (!next) return fail(409, "illegal", "That can't be done now.", { game: view(row, seat, S) });
+    const now = Date.now();
+    const res = await db.prepare("UPDATE rooms SET state = ?, rev = rev + 1, last_move = ? WHERE code = ? AND rev = ?")
+      .bind(JSON.stringify(next), now, code, row.rev).run();
+    if (res.meta.changes !== 1) return fail(409, "stale", "The game moved on. Showing the latest board.", { game: view(row, seat, S) });
+    return json(view({ ...row, rev: row.rev + 1 }, seat, next));
   }
 
   if (method === "DELETE" && parts.length === 3) {

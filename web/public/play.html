@@ -45,7 +45,33 @@
     .stage .board { flex: none; width: min(100cqh, 100cqw * 1200 / 440); transform: rotate(-90deg); }
     .stage .board .count { transform: translate(-50%, -50%) rotate(90deg); font-size: clamp(11px, 3.4vw, 16px); }
   }
-  #message { padding: 6px 16px; border-radius: 99px; background: var(--card); border: 1px solid var(--border); font-size: 14px; font-weight: 500; text-align: center; }
+  /* The online lobby: a page of its own while the host waits, with the code in five boxes. */
+  .lobby { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 24px;
+           background: radial-gradient(ellipse at 50% 35%, #3a2a2c 0%, #231a24 45%, #120d13 100%); }
+  .lobby-box { width: 100%; max-width: 440px; display: flex; flex-direction: column; align-items: center; gap: 22px; text-align: center; }
+  .lobby h1 { margin: 0; font-size: 24px; font-weight: 700; }
+  .stone-row { display: flex; gap: 10px; justify-content: center; }
+  .stone-row img { width: 34px; height: 34px; }
+  .code-boxes { display: flex; gap: 8px; }
+  .code-boxes span { width: 56px; height: 80px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);
+                     border-radius: var(--radius); background: var(--card); font-size: 44px; font-weight: 800; }
+  .waiting { display: flex; align-items: center; gap: 8px; color: var(--muted-foreground); font-size: 14px; margin: 0; }
+  .spinner { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--input); border-top-color: var(--primary); animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  /* Who goes first: two choices and a coin to flip. */
+  .first-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .first-choices .btn { height: auto; padding: 16px 10px; font-size: 15px; }
+  .first-choices .coin-btn { grid-column: 1 / -1; background: var(--accent); }
+  .coinbox { perspective: 700px; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 8px 0; }
+  .coin { position: relative; width: 120px; height: 120px; transform-style: preserve-3d; animation: coinflip 1.7s cubic-bezier(0.2, 0.6, 0.3, 1) forwards; }
+  .coinface { position: absolute; inset: 0; backface-visibility: hidden; }
+  .coinface img { width: 100%; height: 100%; object-fit: contain; }
+  .coinface.back { transform: rotateY(180deg); }
+  @keyframes coinflip { from { transform: rotateY(0deg); } to { transform: rotateY(var(--end)); } }
+  .coin-text { min-height: 24px; margin: 0; font-size: 17px; font-weight: 600; }
+  .log { margin: 0; padding-left: 22px; display: grid; gap: 6px; font-size: 14px; max-height: 55vh; overflow-y: auto; }
+  /* The message is a hint box beside the board rather than a small pill. */
+  #message { padding: 10px 18px; border-radius: 12px; min-width: 200px; background: var(--card); border: 1px solid var(--border); font-size: 14px; font-weight: 500; text-align: center; }
   #message:empty { visibility: hidden; }
   .game-code { margin: 14px 0; font-size: 44px; font-weight: 800; letter-spacing: .3em; padding-left: .3em; color: var(--primary); }
   .winner-icon { width: 84px; height: 84px; margin-bottom: 6px; }
@@ -70,27 +96,58 @@
   </div>
 </div>
 
-<div class="overlay" id="waitingDialog" hidden>
-  <div class="dialog small center">
-    <h2>Share this code</h2>
-    <p class="game-code" id="waitingCode"></p>
-    <p class="description">Send this code to your friend. They choose Play with friends, then Join with a code.</p>
+<div class="lobby" id="waitingDialog" hidden>
+  <div class="lobby-box">
+    <div class="stone-row" id="lobbyStones"></div>
+    <div>
+      <h1>Your game is ready</h1>
+      <p class="description">Send this code to your friend. They choose Join with a code.</p>
+    </div>
+    <div class="code-boxes" id="waitingCode"></div>
+    <button type="button" class="btn btn-outline" id="copyCode">Copy code</button>
+    <p class="waiting"><span class="spinner"></span>Waiting for your opponent to join</p>
     <p class="error" id="waitingError" hidden></p>
-    <div class="footer">
-      <button type="button" class="btn btn-outline" id="copyCode">Copy code</button>
-      <button type="button" class="btn btn-primary" id="cancelRoom">Cancel game</button>
+    <button type="button" class="btn btn-ghost" id="cancelRoom">Cancel game</button>
+  </div>
+</div>
+
+<div class="overlay" id="firstDialog" hidden>
+  <div class="dialog small">
+    <h2>Who goes first?</h2>
+    <div class="body">
+      <div class="first-choices" id="firstChoices">
+        <button type="button" class="btn btn-outline" data-first="0"></button>
+        <button type="button" class="btn btn-outline" data-first="1"></button>
+        <button type="button" class="btn coin-btn" id="flipCoin"><img src="/img/icons/coin-gold-1.png" alt="">Flip a coin</button>
+      </div>
+      <p class="waiting" id="firstWaiting" hidden><span class="spinner"></span><span></span></p>
+      <div class="coinbox" id="coinBox" hidden>
+        <div class="coin" id="coin">
+          <div class="coinface"><img src="/img/icons/coin-gold-1.png" alt=""></div>
+          <div class="coinface back"><img src="/img/icons/coin-gold-2.png" alt=""></div>
+        </div>
+        <p class="coin-text" id="coinText"></p>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="overlay" id="leaveDialog" hidden>
+<div class="overlay" id="askDialog" hidden>
   <div class="dialog small">
-    <h2>Leave this game?</h2>
-    <p class="description" id="leaveText">The game is saved. You can resume it from the home page.</p>
+    <h2 id="askTitle"></h2>
+    <p class="error" id="askError" hidden></p>
     <div class="footer">
-      <button type="button" class="btn btn-outline" data-close>Stay</button>
-      <a class="btn btn-primary" href="/">Leave</a>
+      <button type="button" class="btn btn-outline" data-close>Cancel</button>
+      <button type="button" class="btn btn-primary" id="askYes"></button>
     </div>
+  </div>
+</div>
+
+<div class="overlay" id="logDialog" hidden>
+  <div class="dialog">
+    <h2>Game log</h2>
+    <ol class="log" id="logList"></ol>
+    <div class="footer"><button type="button" class="btn btn-primary" data-close>Done</button></div>
   </div>
 </div>
 
@@ -118,7 +175,10 @@
         <div><div class="field-label">Stones</div><div class="segmented" id="stoneSets"></div></div>
       </div>
       <div class="menu">
+        <button type="button" class="btn btn-outline" id="openLog"><img src="/img/icons/log.png" alt="">Log</button>
         <button type="button" class="btn btn-outline" id="openRules"><img src="/img/icons/rules.png" alt="">Rules</button>
+        <button type="button" class="btn btn-outline" id="startOver"><img src="/img/icons/start-over.png" alt="">Start over</button>
+        <button type="button" class="btn btn-outline" id="resign"><img src="/img/icons/resign.png" alt="">Resign</button>
         <button type="button" class="btn btn-outline" id="leave"><img src="/img/icons/leave-game.png" alt="">Leave game</button>
       </div>
     </div>
@@ -138,9 +198,8 @@
 </div>
 
 <div class="overlay" id="winnerDialog" hidden>
-  <div class="dialog small center">
-    <img class="winner-icon" src="/img/icons/mancala.png" alt="">
-    <h2 id="winnerTitle"></h2>
+  <div class="dialog small">
+    <h2>Game over</h2>
     <p class="description" id="winnerText"></p>
     <div class="footer">
       <a class="btn btn-outline" href="/">Back to home</a>
@@ -151,7 +210,7 @@
 
 <script src="/confetti.js"></script>
 <script type="module">
-import { createGame, play, legalMoves, computerMove } from "/engine.js";
+import { createGame, play, legalMoves, computerMove, chooseFirst as firstLocally, resign as resignLocally } from "/engine.js";
 import { $, api, readSeat, loadSave, writeSave, clearSave, getBoardLook, getStoneSet, getLook, setRules, showSettings, celebrate, RULES_HTML } from "/app.js";
 import { createBoard } from "/board.js";
 import { createClassicBoard, createTextBoard } from "/retro.js";
@@ -167,11 +226,40 @@ let S = null, rev = 0, seated = true, busy = false, celebrated = false;
 
 $("rulesBody").innerHTML = RULES_HTML;
 document.querySelectorAll(".overlay").forEach((overlay) => overlay.addEventListener("click", (e) => {
-  if (["winnerDialog", "waitingDialog"].includes(overlay.id)) return;
+  if (["winnerDialog", "firstDialog"].includes(overlay.id)) return;
   if (e.target === overlay || e.target.closest("[data-close]")) overlay.hidden = true;
 }));
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") ["leaveDialog", "rulesDialog", "settingsDialog", "newGameDialog"].forEach((id) => ($(id).hidden = true)); });
-$("leave").addEventListener("click", () => { $("settingsDialog").hidden = true; $("leaveDialog").hidden = false; });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") ["askDialog", "rulesDialog", "settingsDialog", "newGameDialog", "logDialog"].forEach((id) => ($(id).hidden = true)); });
+
+// A question with a title and two buttons, like "Resign?", before doing something that can't be undone.
+let askYes = null;
+function ask(title, yes, run) {
+  $("settingsDialog").hidden = true;
+  $("askTitle").textContent = title;
+  $("askYes").textContent = yes;
+  $("askError").hidden = true;
+  askYes = run;
+  $("askDialog").hidden = false;
+}
+$("askYes").addEventListener("click", async () => {
+  try { await askYes(); $("askDialog").hidden = true; } catch (error) { $("askError").textContent = error.message; $("askError").hidden = false; }
+});
+$("leave").addEventListener("click", () => ask("Leave this game?", "Leave", () => { location.href = "/"; }));
+$("startOver").addEventListener("click", () => ask("Start over?", "Start over", () => {
+  writeSave(mode, { S: createGame(S.rules, S.players), level: save?.level ?? null });
+  location.reload();
+}));
+$("resign").addEventListener("click", () => ask("Resign?", "Resign", async () => {
+  if (mode === "online") adopt(await api("POST", `/rooms/${roomCode}/resign`, { token: mine.token }));
+  else { S = resignLocally(S, mode === "ai" ? 0 : S.turn); writeSave(mode, { S, level: save.level }); render(); }
+}));
+$("openLog").addEventListener("click", () => {
+  $("settingsDialog").hidden = true;
+  const list = $("logList");
+  list.innerHTML = "";
+  for (const line of S?.log ?? []) list.appendChild(Object.assign(document.createElement("li"), { textContent: line }));
+  $("logDialog").hidden = false;
+});
 $("openRules").addEventListener("click", () => { $("settingsDialog").hidden = true; $("rulesDialog").hidden = false; });
 // The board is built once for its look, so a change of look rebuilds the page; the game itself is saved.
 const look = getLook(), boardLook = getBoardLook(), stoneSet = getStoneSet();
@@ -196,7 +284,7 @@ const board = look === "text" ? createTextBoard($("board"), { onPit, game: () =>
   : createBoard($("board"), { boardLook, stoneSet, onPit });
 
 // Whether this screen may play the current turn.
-const myTurn = () => !S.over && !busy && (mode === "device" || (mode === "ai" && S.turn === 0) || (mode === "online" && seated && S.turn === mine.seat));
+const myTurn = () => !S.over && !S.awaitingFirst && !busy && (mode === "device" || (mode === "ai" && S.turn === 0) || (mode === "online" && seated && S.turn === mine.seat));
 
 // The names already show whose turn it is, so only what the move did is written out.
 function eventMessage() {
@@ -208,17 +296,18 @@ function render() {
   const you = (i) => (mode === "online" && mine.seat === i) || (mode === "ai" && i === 0) ? " (you)" : "";
   [0, 1].forEach((i) => {
     const panel = $("p" + i);
-    panel.classList.toggle("active", !S.over && S.turn === i);
+    panel.classList.toggle("active", !S.over && !S.awaitingFirst && S.turn === i);
     panel.querySelector(".name").textContent = (S.players[i] || "Waiting…") + you(i);
   });
   document.title = `${S.players[0]} vs ${S.players[1] || "…"} · Mancala`;
   $("message").textContent = mode === "online" && !seated ? "Waiting for a second player…"
-    : mode === "ai" && S.turn === 1 && !S.over ? "The computer is thinking…" : eventMessage();
+    : mode === "ai" && S.turn === 1 && !S.over && !S.awaitingFirst ? "The computer is thinking…" : eventMessage();
   board.highlight(myTurn() ? legalMoves(S) : []);
+  showFirst();
   if (S.over && !celebrated) {
     celebrated = true;
+    $("firstDialog").hidden = true;
     if (mode !== "online") clearSave(mode);
-    $("winnerTitle").textContent = S.winner === null ? "It's a draw" : `${S.players[S.winner]} wins!`;
     $("winnerText").textContent = S.message;
     $("again").hidden = mode === "online";
     setTimeout(() => { $("winnerDialog").hidden = false; celebrate(); }, 400);
@@ -261,8 +350,47 @@ async function move(pit) {
   }
 }
 
+// ---------- who goes first ----------
+function showFirst() {
+  const asking = !!S.awaitingFirst && !S.over && (mode !== "online" || seated);
+  $("firstDialog").hidden = !asking;
+  if (!asking || coinFlipping) return;
+  const chooses = mode !== "online" || mine.seat === 0;
+  $("firstChoices").hidden = !chooses;
+  $("firstWaiting").hidden = chooses;
+  $("firstWaiting").lastElementChild.textContent = `Waiting for ${S.players[0]} to choose.`;
+  document.querySelectorAll("[data-first]").forEach((b) => (b.textContent = `${S.players[b.dataset.first]} goes first`));
+}
+
+// Online, the Worker stores the game; this takes what it sent back.
+function adopt(game) {
+  S = game; rev = game.rev; seated = game.seated;
+  board.set(S.board);
+  render();
+}
+
+async function chooseFirst(player) {
+  if (mode === "online") return adopt(await api("POST", `/rooms/${roomCode}/first`, { token: mine.token, player }));
+  S = firstLocally(S, player);
+  writeSave(mode, { S, level: save.level });
+  render();
+  if (mode === "ai") computerTurn();
+}
+document.querySelectorAll("[data-first]").forEach((b) => b.addEventListener("click", () => chooseFirst(Number(b.dataset.first)).catch((e) => ($("message").textContent = e.message))));
+
+let coinFlipping = false;
+$("flipCoin").addEventListener("click", () => {
+  const winner = crypto.getRandomValues(new Uint8Array(1))[0] & 1;
+  coinFlipping = true;
+  $("firstChoices").hidden = true;
+  $("coinBox").hidden = false;
+  $("coin").style.setProperty("--end", winner === 0 ? "1800deg" : "1980deg");
+  setTimeout(() => ($("coinText").textContent = `${S.players[winner]} goes first!`), 1750);
+  setTimeout(() => { coinFlipping = false; chooseFirst(winner).catch((e) => ($("message").textContent = e.message)); }, 2900);
+});
+
 async function computerTurn() {
-  while (mode === "ai" && !S.over && S.turn === 1) {
+  while (mode === "ai" && !S.over && !S.awaitingFirst && S.turn === 1) {
     render();
     await new Promise((r) => setTimeout(r, 700));
     await show(play(S, computerMove(S, save.level)));
@@ -284,7 +412,7 @@ function showMissing(text) {
 
 function showWaiting() {
   $("waitingDialog").hidden = !(mode === "online" && !seated && mine.seat === 0);
-  $("waitingCode").textContent = roomCode;
+  if (mode === "online") $("waitingCode").innerHTML = [...roomCode].map((d) => `<span>${d}</span>`).join("");
 }
 
 async function poll() {
@@ -293,7 +421,7 @@ async function poll() {
       const game = await fetchRoom();
       if (!busy) {
         // The other player's move: replay it from the board we have, then take the stored game.
-        if (game.rev === rev + 1 && game.last && game.last.player !== mine.seat) {
+        if (game.rev === rev + 1 && game.moves === S.moves + 1 && game.last && game.last.player !== mine.seat) {
           const result = play(S, game.last.pit);
           if (result) await show(result);
         }
@@ -327,8 +455,11 @@ $("cancelRoom").addEventListener("click", async () => {
 });
 
 // ---------- start ----------
+for (const color of ["amber", "blue", "green", "red", "purple"]) {
+  $("lobbyStones").appendChild(Object.assign(document.createElement("img"), { src: `/img/stones/stone-${color}-1.svg`, alt: "" }));
+}
 if (mode === "online") {
-  $("leaveText").textContent = `To come back, choose Play with friends, then join with code ${roomCode}.`;
+  $("startOver").hidden = true;
   $("codeRow").hidden = false;
   $("codeText").textContent = roomCode;
   $("copyRoomCode").addEventListener("click", async () => {

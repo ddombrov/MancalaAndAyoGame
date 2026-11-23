@@ -15,6 +15,8 @@ A two-player Mancala game with two rule sets, Kalah and Ayo. It started as a Jav
 - **Saved games:** games on one device or against the computer are kept in the browser and offered for resume. Online games are stored on the server, and a player who loses their seat can take it back with the code.
 - **Animated board:** every stone moves on its own as it is sown, relayed, captured and banked.
 - **Custom looks:** walnut, oak or ebony boards and four stone sets, or the original Java version's looks: Classic, the grid of Swing buttons, and Text, the console where you type a pit number. Chosen in Settings on the home page or during a game. The browser also remembers your name.
+- **Before the first move:** choose who goes first, or flip a coin for it.
+- **In a game:** a log of every move, Start over, Resign and Leave, all from Settings.
 - **Confetti** when the game ends.
 - **The original Java version** is still here, with its own animated Swing board.
 
