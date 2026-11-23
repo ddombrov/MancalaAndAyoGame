@@ -131,7 +131,7 @@ final class SetupDialog extends JDialog {
         return dialog.result;
     }
 
-    /** Collapses runs of whitespace and trims, as Splendor does for player names. */
+    /** Collapses runs of whitespace and trims a player name. */
     static String cleanName(String name) {
         String cleaned = name.replaceAll("\\s+", " ").trim();
         return cleaned.length() > Widgets.NAME_LIMIT ? cleaned.substring(0, Widgets.NAME_LIMIT) : cleaned;

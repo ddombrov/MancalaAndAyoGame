@@ -20,7 +20,7 @@ A two-player Mancala game with two rule sets, Kalah and Ayo. It started as a Jav
 
 ## Running the web version
 
-`web/` is a Cloudflare Worker with a D1 database, built like Splendor Duel's server. `web/public/engine.js` holds the rules and the computer opponent, and is shared by the browser and the Worker, which checks every online move. Running it locally needs Node 22:
+`web/` is a Cloudflare Worker with a D1 database. `web/public/engine.js` holds the rules and the computer opponent, and is shared by the browser and the Worker, which checks every online move. Running it locally needs Node 22:
 
 ```
 cd web
@@ -63,4 +63,4 @@ Daniel Dombrovsky
 
 ## Credits
 
-The mode icons are shared with Splendor Duel. Confetti uses [canvas-confetti](https://github.com/catdad/canvas-confetti) (ISC licence, see `CONFETTI-LICENSE.txt`).
+Confetti uses [canvas-confetti](https://github.com/catdad/canvas-confetti) (ISC licence, see `CONFETTI-LICENSE.txt`).

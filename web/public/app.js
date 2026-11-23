@@ -8,12 +8,15 @@ const write = (store, key, value) => { try { value === null ? store.removeItem(k
 // The name this browser last played under, so it does not have to be typed again.
 export const savedName = () => read(localStorage, "mancala:name") || "";
 export const rememberName = (name) => { if (name && name.trim()) write(localStorage, "mancala:name", name.trim()); };
+// Player 2's name on this device, remembered the same way.
+export const savedName2 = () => read(localStorage, "mancala:name2") || "";
+export const rememberName2 = (name) => { if (name && name.trim()) write(localStorage, "mancala:name2", name.trim()); };
 
 // A tab remembers its seat in each online game, so two tabs of one browser can be the two players.
 export const readSeat = (code) => { try { return JSON.parse(read(sessionStorage, `mancala:seat:${code}`)); } catch { return null; } };
 export const saveSeat = (code, seat, token) => write(sessionStorage, `mancala:seat:${code}`, JSON.stringify({ seat, token }));
 
-// Games on this device and against the computer are kept in local storage, one slot per kind, like Splendor Duel's.
+// Games on this device and against the computer are kept in local storage, one slot per kind.
 export function loadSave(mode) {
   try {
     const save = JSON.parse(read(localStorage, `mancala:save:${mode}`));
@@ -22,6 +25,9 @@ export function loadSave(mode) {
 }
 export const writeSave = (mode, save) => write(localStorage, `mancala:save:${mode}`, JSON.stringify({ ...save, at: Date.now() }));
 export const clearSave = (mode) => write(localStorage, `mancala:save:${mode}`, null);
+
+// The rules for new games, chosen in Settings before a game starts.
+export const RULES = { kalah: "Kalah", ayo: "Ayo" };
 
 // The look, chosen in Settings: the modern board, or the Java version's Swing grid or text console.
 export const LOOKS = { modern: "Modern", classic: "Classic", text: "Text" };
@@ -39,11 +45,14 @@ export const setBoardLook = (v) => write(localStorage, "mancala:board", v);
 export const getStoneSet = () => pref("mancala:stones", STONE_SETS, "mixed");
 export const setStoneSet = (v) => write(localStorage, "mancala:stones", v);
 export const getLook = () => pref("mancala:look", LOOKS, "modern");
+export const getRules = () => pref("mancala:rules", RULES, "kalah");
+export const setRules = (v) => write(localStorage, "mancala:rules", v);
 export const setLook = (v) => write(localStorage, "mancala:look", v);
 
 // Fills the Settings dialog, which the home and game pages both have. The board and stone choices only
-// apply to the modern look. `onChange` runs after any choice.
-export function showSettings(onChange = () => {}) {
+// apply to the modern look. `onChange` runs after any choice. On the game page, `game` describes the game
+// being played: its rules are shown, and picking other rules calls `game.pick` (or nothing, when `game.locked`).
+export function showSettings(onChange = () => {}, game = null) {
   const choices = (container, options, get, set) => {
     container.innerHTML = "";
     for (const [value, label] of Object.entries(options)) {
@@ -55,6 +64,22 @@ export function showSettings(onChange = () => {}) {
       container.appendChild(b);
     }
   };
+  if (game) {
+    const box = $("rulesChoices");
+    box.innerHTML = "";
+    for (const [value, label] of Object.entries(RULES)) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = label;
+      b.classList.toggle("on", value === game.rules);
+      b.disabled = game.locked;
+      b.addEventListener("click", () => { if (value !== game.rules) game.pick(value); });
+      box.appendChild(b);
+    }
+    $("rulesNote").hidden = !game.locked;
+  } else {
+    choices($("rulesChoices"), RULES, getRules, setRules);
+  }
   choices($("looks"), LOOKS, getLook, setLook);
   choices($("boardLooks"), BOARDS, getBoardLook, setBoardLook);
   choices($("stoneSets"), STONE_SET_NAMES, getStoneSet, setStoneSet);

@@ -11,7 +11,7 @@
 <style>
   body { display: flex; flex-direction: column; align-items: center; padding: 50px 16px 14px; overflow: hidden; }
   .wrap { width: 100%; max-width: 1400px; flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-  /* Settings sits in the top-right corner, as in Splendor Duel; the board starts below it. */
+  /* Settings sits in the top-right corner; the board starts below it. */
   .settings-btn { position: fixed; top: 10px; right: 14px; z-index: 5; color: var(--muted-foreground); }
   .settings-btn img { width: 24px; height: 24px; }
   .menu { display: grid; gap: 8px; justify-items: center; }
@@ -19,6 +19,8 @@
   .info-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px;
               border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; }
   .info-row strong { letter-spacing: .08em; }
+  .note { margin: 8px 0 0; color: var(--muted-foreground); font-size: 13px; }
+  .segmented button:disabled { opacity: .5; cursor: default; }
   /* Player 2's store is on the left and player 1's on the right, so each name sits under its store, with
      the message between them: one row instead of a name above and below the board. */
   .players { width: 100%; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
@@ -106,7 +108,10 @@
     <div class="body">
       <div class="info-row" id="codeRow" hidden><span>Game code</span><strong id="codeText"></strong>
         <button type="button" class="btn btn-ghost" id="copyRoomCode">Copy</button></div>
-      <div class="info-row"><span>Rules</span><strong id="rulesName"></strong></div>
+      <div>
+        <div class="field-label">Rules</div><div class="segmented" id="rulesChoices"></div>
+        <p class="note" id="rulesNote" hidden>Fixed for an online game.</p>
+      </div>
       <div><div class="field-label">Look</div><div class="segmented" id="looks"></div></div>
       <div class="stack" id="modernChoices">
         <div><div class="field-label">Board</div><div class="segmented" id="boardLooks"></div></div>
@@ -118,6 +123,17 @@
       </div>
     </div>
     <div class="footer"><button type="button" class="btn btn-primary" data-close>Done</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="newGameDialog" hidden>
+  <div class="dialog small">
+    <h2>Start a new game?</h2>
+    <p class="description">The new rules apply to a new game.</p>
+    <div class="footer">
+      <button type="button" class="btn btn-outline" data-close>Keep playing</button>
+      <button type="button" class="btn btn-primary" id="newGameGo">New game</button>
+    </div>
   </div>
 </div>
 
@@ -135,8 +151,8 @@
 
 <script src="/confetti.js"></script>
 <script type="module">
-import { createGame, play, legalMoves, computerMove, RULE_NAMES } from "/engine.js";
-import { $, api, readSeat, loadSave, writeSave, clearSave, getBoardLook, getStoneSet, getLook, showSettings, celebrate, RULES_HTML } from "/app.js";
+import { createGame, play, legalMoves, computerMove } from "/engine.js";
+import { $, api, readSeat, loadSave, writeSave, clearSave, getBoardLook, getStoneSet, getLook, setRules, showSettings, celebrate, RULES_HTML } from "/app.js";
 import { createBoard } from "/board.js";
 import { createClassicBoard, createTextBoard } from "/retro.js";
 
@@ -154,14 +170,25 @@ document.querySelectorAll(".overlay").forEach((overlay) => overlay.addEventListe
   if (["winnerDialog", "waitingDialog"].includes(overlay.id)) return;
   if (e.target === overlay || e.target.closest("[data-close]")) overlay.hidden = true;
 }));
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") ["leaveDialog", "rulesDialog", "settingsDialog"].forEach((id) => ($(id).hidden = true)); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") ["leaveDialog", "rulesDialog", "settingsDialog", "newGameDialog"].forEach((id) => ($(id).hidden = true)); });
 $("leave").addEventListener("click", () => { $("settingsDialog").hidden = true; $("leaveDialog").hidden = false; });
 $("openRules").addEventListener("click", () => { $("settingsDialog").hidden = true; $("rulesDialog").hidden = false; });
 // The board is built once for its look, so a change of look rebuilds the page; the game itself is saved.
 const look = getLook(), boardLook = getBoardLook(), stoneSet = getStoneSet();
+// Other rules mean a new game: on this device it asks first, online they are fixed.
+let pendingRules = null;
 $("openSettings").addEventListener("click", () => showSettings(() => {
   if (getLook() !== look || getBoardLook() !== boardLook || getStoneSet() !== stoneSet) location.reload();
-}));
+}, S && { rules: S.rules, locked: mode === "online", pick: (rules) => {
+  pendingRules = rules;
+  $("settingsDialog").hidden = true;
+  $("newGameDialog").hidden = false;
+} }));
+$("newGameGo").addEventListener("click", () => {
+  setRules(pendingRules);
+  writeSave(mode, { S: createGame(pendingRules, S.players), level: save?.level ?? null });
+  location.reload();
+});
 
 const onPit = (pit) => move(pit);
 const board = look === "text" ? createTextBoard($("board"), { onPit, game: () => S, canPlay: () => myTurn() })
@@ -184,7 +211,6 @@ function render() {
     panel.classList.toggle("active", !S.over && S.turn === i);
     panel.querySelector(".name").textContent = (S.players[i] || "Waiting…") + you(i);
   });
-  $("rulesName").textContent = RULE_NAMES[S.rules];
   document.title = `${S.players[0]} vs ${S.players[1] || "…"} · Mancala`;
   $("message").textContent = mode === "online" && !seated ? "Waiting for a second player…"
     : mode === "ai" && S.turn === 1 && !S.over ? "The computer is thinking…" : eventMessage();

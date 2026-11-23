@@ -51,13 +51,6 @@
     <form class="dialog" id="setupForm" novalidate>
       <h2 id="setupTitle">Play on this device</h2>
       <div class="body">
-        <div>
-          <div class="field-label">Rules</div>
-          <div class="segmented rules-choice">
-            <button type="button" data-rules="kalah" class="on">Kalah</button>
-            <button type="button" data-rules="ayo">Ayo</button>
-          </div>
-        </div>
         <div id="levelField">
           <div class="field-label">Difficulty</div>
           <div class="segmented" id="levels">
@@ -106,13 +99,6 @@
           <button type="button" class="on" data-tab="create">Create a game</button>
           <button type="button" data-tab="join">Join with a code</button>
         </div>
-        <div id="onlineRules">
-          <div class="field-label">Rules</div>
-          <div class="segmented rules-choice">
-            <button type="button" data-rules="kalah" class="on">Kalah</button>
-            <button type="button" data-rules="ayo">Ayo</button>
-          </div>
-        </div>
         <div>
           <div class="field-label"><label for="onlineName">Your name</label></div>
           <input class="input" id="onlineName" maxlength="20" placeholder="Name" autocomplete="off" />
@@ -157,6 +143,7 @@
     <div class="dialog small">
       <h2>Settings</h2>
       <div class="body">
+        <div><div class="field-label">Rules</div><div class="segmented" id="rulesChoices"></div></div>
         <div><div class="field-label">Look</div><div class="segmented" id="looks"></div></div>
         <div class="stack" id="modernChoices">
           <div><div class="field-label">Board</div><div class="segmented" id="boardLooks"></div></div>
@@ -179,7 +166,7 @@
   <script type="module">
     import { createGame, sameName, RULE_NAMES } from "/engine.js";
     import { $, api, savedName, rememberName, saveSeat, loadSave, writeSave, clearSave,
-             showSettings, RULES_HTML } from "/app.js";
+             showSettings, getRules, savedName2, rememberName2, RULES_HTML } from "/app.js";
 
     $("rulesBody").innerHTML = RULES_HTML;
     const open = (id) => { $(id).hidden = false; };
@@ -214,7 +201,6 @@
       }));
       return () => value;
     }
-    const [deviceRules, onlineRules] = [...document.querySelectorAll(".rules-choice")].map((c) => segmented(c, "rules"));
     const level = segmented($("levels"), "level");
 
     const goToRoom = ({ code, seat, token }) => { saveSeat(code, seat, token); location.href = "/play.html?room=" + code; };
@@ -238,6 +224,7 @@
       $("player2Field").hidden = ai;
       $("player1Label").textContent = ai ? "Your name" : "Player 1";
       if (!p1.value.trim()) p1.value = savedName();
+      if (!ai && !p2.value.trim()) p2.value = savedName2();
       validate();
       open("setupDialog");
       (p1.value.trim() && !ai ? p2 : p1).focus();
@@ -248,12 +235,13 @@
       if (start.disabled) return;
       rememberName(p1.value);
       const ai = setupMode === "ai";
+      if (!ai) rememberName2(p2.value);
       const names = [p1.value.trim(), ai ? "Computer" : p2.value.trim()];
-      writeSave(setupMode, { S: createGame(deviceRules(), names), level: ai ? level() : null });
+      writeSave(setupMode, { S: createGame(getRules(), names), level: ai ? level() : null });
       location.href = "/play.html?mode=" + setupMode;
     });
 
-    // Like Splendor Duel: starting a game on this device or against the computer offers to resume the unfinished one.
+    // Starting a game on this device or against the computer offers to resume the unfinished one.
     let resumeMode = null;
     function pick(mode) {
       const save = loadSave(mode);
@@ -276,7 +264,6 @@
       tab = next;
       document.querySelectorAll("#onlineTabs button").forEach((b) => b.classList.toggle("on", b.dataset.tab === tab));
       $("codeField").hidden = tab !== "join";
-      $("onlineRules").hidden = tab !== "create";
       $("seats").hidden = true;
       onlineGo.hidden = false;
       showError("onlineError", "");
@@ -309,7 +296,7 @@
       onlineGo.disabled = true;
       try {
         rememberName(name);
-        if (tab === "create") goToRoom(await api("POST", "/rooms", { name, rules: onlineRules() }));
+        if (tab === "create") goToRoom(await api("POST", "/rooms", { name, rules: getRules() }));
         else goToRoom(await api("POST", `/rooms/${codeInput.value}/join`, { name }));
       } catch (err) {
         if (err.reason === "full" && err.names) showSeats(codeInput.value, err.names);

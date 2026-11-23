@@ -1,4 +1,4 @@
-// The game server, built like Splendor Duel's: it serves public/ and owns every online game. Browsers
+// The game server: it serves public/ and owns every online game. Browsers
 // send moves, the Worker plays them with the same rules engine the browser uses, and only legal results
 // are stored. Games on one device and against the computer stay in the browser's local storage.
 //   POST   /api/rooms               { name, rules }    -> { code, seat: 0, token }
